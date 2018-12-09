@@ -59,4 +59,4 @@ dkms.conf
 .cdtproject
 
 # Mac OSX files
-.DS_STORE
+.DS_Store
