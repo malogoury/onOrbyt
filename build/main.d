@@ -1,4 +1,4 @@
-main.o: /home/nds/files/LabSession/workspace/onOrbyt/source/main.c \
+main.o: /home/nds/files/workspace/onOrbyt/source/main.c \
   /opt/devkitPro/libnds/include/nds.h \
   /opt/devkitPro/libnds/include/nds/libversion.h \
   /opt/devkitPro/libnds/include/nds/ndstypes.h \
