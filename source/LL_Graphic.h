@@ -17,3 +17,4 @@
 void game_Display_init(struct Planets *Planet);
 void setUp_Stars_Background();
 void setUp_Planet_Background(struct Planets *Planet);
+void game_Display_update(struct Coordonnees location);
