@@ -10,6 +10,7 @@
 
 int main(void) {
 	// Initialisations
+
     consoleDemoInit();
     printf("\nHello World!\n");
 
