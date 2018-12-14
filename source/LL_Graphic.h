@@ -10,3 +10,10 @@
 
 
 #endif /* LL_GRAPHIC_H_ */
+
+#include "onOrbyt/Map.h"
+#include <nds.h>
+
+void game_Display_init(struct Planets *Planet);
+void setUp_Stars_Background();
+void setUp_Planet_Background(struct Planets *Planet);
