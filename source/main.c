@@ -25,17 +25,18 @@ int main(void) {
     location.y = 0;
 
 
-    game_Display_init(Planet_test);
 
     irqInit();
     timer_init();
     gameplay_init();
+    graphic_init();
 
+    graphic_gameInit(Planet_test);
     // Main infinite loop
     while(1){
-        swiWaitForVBlank();	
-        /*game_Display_update(location);
+        //swiWaitForVBlank();
+    	graphic_gameUpdate(location);
         location.x ++;
-        location.y ++;*/
+        location.y ++;
     }
 }

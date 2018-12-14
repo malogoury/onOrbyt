@@ -14,7 +14,7 @@
 #include "onOrbyt/Map.h"
 #include <nds.h>
 
-void game_Display_init(struct Planets *Planet);
-void setUp_Stars_Background();
-void setUp_Planet_Background(struct Planets *Planet);
-void game_Display_update(struct Coordonnees location);
+
+void graphic_init(void);
+void graphic_gameInit(struct Planets *Planet);
+void graphic_gameUpdate(struct Coordonnees location);

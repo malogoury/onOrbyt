@@ -22,3 +22,5 @@ void gameplay_update(void)
 	game_update();
 	time++;
 }
+
+

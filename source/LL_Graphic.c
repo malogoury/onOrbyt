@@ -18,14 +18,24 @@
 u16 *gfx_Planet = NULL;
 u16 *gfx_Spaceship = NULL;
 
-void game_Display_init(struct Planets *Planet)
+void ISR_VBLANK();
+void setUp_Stars_Background();
+void setUp_Planet_Background(struct Planets *Planet);
+
+void graphic_init()
+{
+	irqSet(IRQ_VBLANK,&ISR_VBLANK);
+	irqEnable(IRQ_VBLANK);
+}
+
+void graphic_gameInit(struct Planets *Planet)
 {
 	setUp_Stars_Background();
 	setUp_Planet_Background(Planet);
 
 }
 
-void game_Display_update(struct Coordonnees location)
+void graphic_gameUpdate(struct Coordonnees location)
 {
     oamSet(&oamMain,
     		1,
@@ -77,7 +87,7 @@ void setUp_Planet_Background(struct Planets *Planet)
     swiCopy(jupiterPal, SPRITE_PALETTE, jupiterPalLen/2);
     swiCopy(jupiterTiles, gfx_Planet, jupiterTilesLen/2);
 
-    swiCopy(spaceshipPal, SPRITE_PALETTE, spaceshipPalLen/2);
+    //swiCopy(spaceshipPal, SPRITE_PALETTE+jupiterPalLen/2, spaceshipPalLen/2);
     swiCopy(spaceshipTiles, gfx_Spaceship, spaceshipTilesLen/2);
 
 
@@ -97,4 +107,9 @@ void setUp_Planet_Background(struct Planets *Planet)
 
     oamUpdate(&oamMain);
 
+}
+
+void ISR_VBLANK()
+{
+	//gameplay_display_update();
 }
