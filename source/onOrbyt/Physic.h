@@ -8,6 +8,7 @@
 
 #include "Physic.c"
 #include "onOrbyt_defines.h"
+#include "Map.h"
 
 void physic_init(Spacecraft* spacecraft);
 void physic_updatePos(void);

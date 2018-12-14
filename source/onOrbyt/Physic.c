@@ -11,12 +11,7 @@
 #include <stdlib.h>
 #include "Physic.h"
 #include "onOrbyt_defines.h"
-
-typedef struct Coordonnees Coordonnee;
-struct Coordonnees
-{
-	int x,y;
-};
+#include "Map.h"
 
 typedef struct Spacecrafts Spacecraft;
 struct Spacecrafts
@@ -24,8 +19,6 @@ struct Spacecrafts
 	Coordonnee pos[NB_POS];			// mpix
 	Coordonnee speed;				// mpix/ms
 };
-
-Spacecraft dragon;
 
 void physic_init(Spacecraft* spacecraft)
 {

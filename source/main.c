@@ -12,6 +12,7 @@ int main(void) {
 	// Initialisations
     consoleDemoInit();
     printf("\nHello World!\n");
+
     game_init();
 
     // Main infinite loop
