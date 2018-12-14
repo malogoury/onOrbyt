@@ -52,11 +52,7 @@ Mkfile.old
 dkms.conf
 
 # NDS files
-*.nds
-*.arm9
-.project
-.cproject
-.cdtproject
+
 
 # Mac OSX files
 .DS_Store
