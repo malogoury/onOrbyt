@@ -8,7 +8,7 @@
  */
 #pragma once
 
-#include "Game.c"
+//#include "Game.c"
 
 void game_init(void);
 void game_update(void);

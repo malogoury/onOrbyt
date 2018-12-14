@@ -10,15 +10,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include "Physic.h"
-#include "onOrbyt_defines.h"
-#include "Map.h"
 
-typedef struct Spacecrafts Spacecraft;
-struct Spacecrafts
-{
-	Coordonnee pos[NB_POS];			// mpix
-	Coordonnee speed;				// mpix/ms
-};
+
 
 void physic_init(Spacecraft* spacecraft)
 {
