@@ -12,9 +12,10 @@
 #endif /* LL_GRAPHIC_H_ */
 
 #include "onOrbyt/Map.h"
-#include <nds.h>
+#include "stars_background.h"
+#include "earth2.h"
+#include "jupiter.h"
+#include "spaceship.h"
 
-void game_Display_init(struct Planets *Planet);
-void setUp_Stars_Background();
-void setUp_Planet_Background(struct Planets *Planet);
-void game_Display_update(struct Coordonnees location);
+void graphic_gameInit(Planet* Planet);
+void graphic_gameUpdate(Coordonnee* location);

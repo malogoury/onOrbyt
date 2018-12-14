@@ -8,7 +8,8 @@
  */
 #pragma once
 
-//#include "Game.c"
+#include "../LL_Graphic.h"
+#include "Physic.h"
 
 void game_init(void);
 void game_update(void);

@@ -32,9 +32,9 @@ void map1_init(Planet *planets)
 
 	for(i=1;i<NB_PLANETS;i++)
 	{
-		planets[0].mu = 0;
-		planets[0].pos.x = 0;
-		planets[0].pos.y = 0;
-		planets[0].radius = 0;
+		planets[i].mu = 0;
+		planets[i].pos.x = 0;
+		planets[i].pos.y = 0;
+		planets[i].radius = 0;
 	}
 }

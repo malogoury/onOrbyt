@@ -7,29 +7,27 @@
  *  Low level functions to display graphics
  */
 
-
-
+#include <nds.h>
 #include "LL_Graphic.h"
-#include "stars_background.h"
-#include "earth2.h"
-#include "jupiter.h"
-#include "spaceship.h"
 
 u16 *gfx_Planet = NULL;
 u16 *gfx_Spaceship = NULL;
 
-void game_Display_init(struct Planets *Planet)
+void setUp_Stars_Background();
+void setUp_Planet_Background(struct Planets *Planet);
+
+void graphic_gameInit(Planet* Planet)
 {
 	setUp_Stars_Background();
 	setUp_Planet_Background(Planet);
 
 }
 
-void game_Display_update(struct Coordonnees location)
+void graphic_gameUpdate(Coordonnee* location)
 {
     oamSet(&oamMain,
     		1,
-    		location.x, location.y,
+    		location[0].x/1000, location[0].y/1000,
     		0,
     		0,
     		SpriteSize_32x32,
@@ -65,7 +63,7 @@ void setUp_Stars_Background()
 
 }
 
-void setUp_Planet_Background(struct Planets *Planet)
+void setUp_Planet_Background(Planet *Planet)
 {
 
 	VRAM_B_CR = VRAM_ENABLE | VRAM_B_MAIN_SPRITE_0x06400000;
@@ -77,13 +75,13 @@ void setUp_Planet_Background(struct Planets *Planet)
     swiCopy(jupiterPal, SPRITE_PALETTE, jupiterPalLen/2);
     swiCopy(jupiterTiles, gfx_Planet, jupiterTilesLen/2);
 
-    swiCopy(spaceshipPal, SPRITE_PALETTE, spaceshipPalLen/2);
+    //swiCopy(spaceshipPal, SPRITE_PALETTE+jupiterPalLen/2, spaceshipPalLen/2);
     swiCopy(spaceshipTiles, gfx_Spaceship, spaceshipTilesLen/2);
 
 
     oamSet(&oamMain,
     		0,
-    		Planet[0].pos.x, Planet[0].pos.y,
+    		Planet[0].pos.x/1000, Planet[0].pos.y/1000,
     		0,
     		0,
     		SpriteSize_32x32,

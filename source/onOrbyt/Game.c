@@ -9,7 +9,6 @@
 
 #include <stdio.h>
 #include "Game.h"
-#include "Physic.h"
 
 Spacecraft orion;
 Planet planets[NB_PLANETS];
@@ -18,6 +17,8 @@ void game_init(void)
 {
 	physic_init(&orion);
 	map_init(planets, MAP1);
+	printf("planet x = %d, y = %d \n", planets[0].pos.x, planets[0].pos.y);
+	graphic_gameInit(planets);
 }
 void game_update(void)
 {
@@ -26,5 +27,5 @@ void game_update(void)
 
 void game_displayUpdate(void)
 {
-	// TO DO: call graphism
+	graphic_gameUpdate(orion.pos);
 }
