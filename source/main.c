@@ -6,7 +6,8 @@
 #include <nds.h>
 #include <stdio.h>
 
-#include "onOrbyt/Game.h"
+#include "onOrbyt/onOrbyt_Gameplay.h"
+#include "LL_Timer.h"
 
 int main(void) {
 	// Initialisations
@@ -14,7 +15,9 @@ int main(void) {
     consoleDemoInit();
     printf("\nHello World!\n");
 
-    game_init();
+    irqInit();
+    timer_init();
+    gameplay_init();
 
     // Main infinite loop
     while(1)

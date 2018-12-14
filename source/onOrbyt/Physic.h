@@ -16,5 +16,5 @@ struct Spacecrafts
 };
 
 void physic_init(Spacecraft* spacecraft);
-void physic_updatePos(void);
+void physic_updatePos(Spacecraft* spacecraft);
 
