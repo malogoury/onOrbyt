@@ -19,5 +19,6 @@ void game_init(void)
 }
 void game_update(void)
 {
-
+	physic_updatePos(&orion);
+	// TO DO: call graphics
 }

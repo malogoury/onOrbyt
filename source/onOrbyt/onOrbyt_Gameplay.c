@@ -8,5 +8,17 @@
  *
  */
 
+#include <stdio.h>
 #include "onOrbyt_Gameplay.h"
 
+void gameplay_init(void)
+{
+	game_init();
+}
+
+void gameplay_update(void)
+{
+	static unsigned long time=0;
+	game_update();
+	time++;
+}

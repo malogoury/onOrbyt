@@ -11,7 +11,7 @@
 #include <stdlib.h>
 #include "Physic.h"
 
-
+void addBufferPos(Coordonnee* pos, Coordonnee new_pos, int length);
 
 void physic_init(Spacecraft* spacecraft)
 {
@@ -25,7 +25,20 @@ void physic_init(Spacecraft* spacecraft)
 	spacecraft->speed.y = 0;
 }
 
-void physic_updatePos(void)
+void physic_updatePos(Spacecraft* spacecraft)
 {
+	Coordonnee new_pos = {0,0};
+	new_pos.x = (spacecraft->pos[0].x+500)%(NPIX_X*1000);
+	new_pos.y = (spacecraft->pos[0].y+500)%(NPIX_Y*1000);
+	addBufferPos(spacecraft->pos, new_pos, NB_POS);
+}
 
+void addBufferPos(Coordonnee* pos, Coordonnee new_pos, int length)
+{
+	int i;
+	for(i=length-1;i>0; i--)
+	{
+		pos[i]=pos[i-1];
+	}
+	pos[0] = new_pos;
 }

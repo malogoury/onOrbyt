@@ -9,8 +9,11 @@
 #define ONORBYT_DEFINES_H_
 
 #define NB_POS		10
-#define X_INIT 		100*1000		// mpix
-#define Y_INIT		100*1000		// mpix
+#define X_INIT 		0*1000		// mpix
+#define Y_INIT		0*1000		// mpix
+
+#define NPIX_X		256
+#define	NPIX_Y		192
 
 
 #endif /* ONORBYT_DEFINES_H_ */
