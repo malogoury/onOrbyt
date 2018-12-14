@@ -8,6 +8,10 @@
 #ifndef MAP_H_
 #define MAP_H_
 
+#include "onOrbyt_defines.h"
+
+typedef enum Maps{MAP1,MAP2,MAP3,MAP5} Maps;
+
 typedef struct Coordonnees Coordonnee;
 struct Coordonnees
 {
@@ -17,8 +21,11 @@ struct Coordonnees
 typedef struct Planets Planet;
 struct Planets {
 	int mu;
-	Coordonnee pos;
 	int radius;
+	Coordonnee pos;
+
 };
+
+void map_init(Planet* planets, Maps map);
 
 #endif /* MAP_H_ */

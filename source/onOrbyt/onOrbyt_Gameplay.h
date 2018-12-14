@@ -12,5 +12,6 @@
 
 void gameplay_init(void);
 void gameplay_update(void);
+void gameplay_displayUpdate(void);
 
 #endif /* ONORBYT_GAMEPLAY_H_ */

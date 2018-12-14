@@ -22,3 +22,8 @@ void gameplay_update(void)
 	game_update();
 	time++;
 }
+
+void gameplay_displayUpdate(void)
+{
+	game_displayUpdate();
+}

@@ -17,10 +17,14 @@ Planet planets[NB_PLANETS];
 void game_init(void)
 {
 	physic_init(&orion);
-	//map_init(planets);
+	map_init(planets, MAP1);
 }
 void game_update(void)
 {
 	physic_updatePos(&orion, planets);
-	// TO DO: call graphics
+}
+
+void game_displayUpdate(void)
+{
+	// TO DO: call graphism
 }
