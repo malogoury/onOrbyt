@@ -12,13 +12,15 @@
 #include "Physic.h"
 
 Spacecraft orion;
+Planet planets[NB_PLANETS];
 
 void game_init(void)
 {
 	physic_init(&orion);
+	//map_init(planets);
 }
 void game_update(void)
 {
-	physic_updatePos(&orion);
+	physic_updatePos(&orion, planets);
 	// TO DO: call graphics
 }
