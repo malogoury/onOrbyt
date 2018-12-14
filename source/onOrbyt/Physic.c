@@ -27,17 +27,19 @@ struct Spacecrafts
 
 Spacecraft dragon;
 
-void physic_updatePos(void)
+void physic_init(Spacecraft* spacecraft)
 {
-	dragon.speed.x = 0;
-	dragon.speed.y = 4;
-	int i;
+	int i=0;
 	for(i=0;i<NB_POS;i++)
 	{
-		dragon.pos[i].x = i;
-		dragon.pos[i].y = i;
-		printf("pos x = %d and pos y = %d \n", dragon.pos[i].x, dragon.pos[i].y);
+		spacecraft->pos[i].x = X_INIT;
+		spacecraft->pos[i].y = Y_INIT;
 	}
+	spacecraft->speed.x = 0;
+	spacecraft->speed.y = 0;
+}
 
-	printf("speed x = %d and speed y = %d \n", dragon.speed.x, dragon.speed.y);
+void physic_updatePos(void)
+{
+
 }

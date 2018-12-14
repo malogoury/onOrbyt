@@ -6,12 +6,9 @@
  *
  *  Header file for Game.c
  */
-
-#ifndef GAME_H_
-#define GAME_H_
+#pragma once
 
 #include "Game.c"
 
+void game_init(void);
 void game_update(void);
-
-#endif /* GAME_H_ */

@@ -11,7 +11,13 @@
 #include "Game.h"
 #include "Physic.h"
 
+Spacecraft orion;
+
+void game_init(void)
+{
+	physic_init(&orion);
+}
 void game_update(void)
 {
-	physic_updatePos();
+
 }
