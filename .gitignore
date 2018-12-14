@@ -52,7 +52,11 @@ Mkfile.old
 dkms.conf
 
 # NDS files
-
+cdtproject
+.cproject
+.project
+onOrbyt.arm9
+onOrbyt.nds
 
 # Mac OSX files
 .DS_Store
