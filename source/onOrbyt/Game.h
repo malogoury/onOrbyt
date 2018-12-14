@@ -10,5 +10,8 @@
 #ifndef GAME_H_
 #define GAME_H_
 
+#include "Game.c"
+
+void game_update(void);
 
 #endif /* GAME_H_ */

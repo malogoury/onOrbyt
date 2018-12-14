@@ -8,5 +8,9 @@
 #ifndef PHYSIC_H_
 #define PHYSIC_H_
 
+#include "Physic.c"
+//#include "onOrbyt_defines.h"
+
+void physic_updatePos(void);
 
 #endif /* PHYSIC_H_ */
