@@ -19,8 +19,9 @@ int main(void) {
     timer_init();
     gameplay_init();
 
-    // Main infinite loop
-    while(1){
-        //swiWaitForVBlank();
-    }
+//    // Main infinite loop
+//    while(1){
+//        //swiWaitForVBlank();
+//    }
+    return 0;
 }
