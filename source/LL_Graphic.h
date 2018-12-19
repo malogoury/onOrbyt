@@ -16,6 +16,8 @@
 #include "earth2.h"
 #include "jupiter.h"
 #include "spaceship.h"
+#include "mami.h"
+#include "planetBW.h"
 
 void graphic_gameInit(Planet* Planet);
 void graphic_gameUpdate(Coordonnee* location);

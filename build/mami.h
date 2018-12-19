@@ -1,29 +1,28 @@
 
-//{{BLOCK(spaceship)
+//{{BLOCK(mami)
 
 //======================================================================
 //
-//	spaceship, 32x32@8, 
-//	Transparent color : 00,00,00
+//	mami, 32x32@8, 
 //	+ palette 256 entries, not compressed
 //	+ 16 tiles not compressed
 //	Total size: 512 + 1024 = 1536
 //
-//	Time-stamp: 2018-12-14, 22:21:41
+//	Time-stamp: 2018-12-14, 21:43:30
 //	Exported by Cearn's GBA Image Transmogrifier, v0.8.3
 //	( http://www.coranac.com/projects/#grit )
 //
 //======================================================================
 
-#ifndef GRIT_SPACESHIP_H
-#define GRIT_SPACESHIP_H
+#ifndef GRIT_MAMI_H
+#define GRIT_MAMI_H
 
-#define spaceshipTilesLen 1024
-extern const unsigned int spaceshipTiles[256];
+#define mamiTilesLen 1024
+extern const unsigned int mamiTiles[256];
 
-#define spaceshipPalLen 512
-extern const unsigned short spaceshipPal[256];
+#define mamiPalLen 512
+extern const unsigned short mamiPal[256];
 
-#endif // GRIT_SPACESHIP_H
+#endif // GRIT_MAMI_H
 
-//}}BLOCK(spaceship)
+//}}BLOCK(mami)
