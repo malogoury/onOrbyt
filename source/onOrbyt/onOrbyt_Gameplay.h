@@ -10,6 +10,8 @@
 
 #include "Game.h"
 
+typedef enum FSM{IDLE,MENU,GAME,RESET,ERROR} FSM;
+
 void gameplay_init(void);
 void gameplay_update(void);
 void gameplay_displayUpdate(void);

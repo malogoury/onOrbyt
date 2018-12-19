@@ -13,24 +13,33 @@
 #include "onOrbyt_Gameplay.h"
 
 void ISR_VBLANK();
+FSM state=IDLE;
+
+void gameplay_main()
+{
+	if(state==MENU) state=GAME;
+	if (state==GAME) game_init();
+}
 
 void gameplay_init(void)
 {
 	irqSet(IRQ_VBLANK,&ISR_VBLANK);
 	irqEnable(IRQ_VBLANK);
-	game_init();
+	state = MENU;
+	gameplay_main();
 }
 
 void gameplay_update(void)
 {
-	static unsigned long time=0;
-	game_update();
-	time++;
+	if(state==MENU);
+	else if (state == GAME);
+		game_update();
 }
 
 void gameplay_displayUpdate(void)
 {
-	game_displayUpdate();
+	if(state==GAME);
+		game_displayUpdate();
 }
 
 void ISR_VBLANK()

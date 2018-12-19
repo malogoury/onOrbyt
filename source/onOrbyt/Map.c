@@ -28,7 +28,7 @@ void map1_init(Planet *planets)
 	planets[0].mu = 60;
 	planets[0].pos.x = NPIX_X*1000/2;
 	planets[0].pos.y = NPIX_Y*1000/2;
-	planets[0].radius = 0;
+	planets[0].radius = 1;
 
 	for(i=1;i<NB_PLANETS;i++)
 	{
