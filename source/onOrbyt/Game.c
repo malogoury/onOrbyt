@@ -28,7 +28,7 @@ void game_init(void)
 }
 void game_update(void)
 {
-	if(state_game==PLAY_game);
+	if(state_game==PLAY_game)
 		physic_updatePos(&orion, planets);
 }
 
@@ -67,7 +67,7 @@ void game_main()
 				vect.x = touched.x-touch.px;
 				vect.y = touched.y-touch.py;
 				orion.speed = physic_velocityInit(vect);
-				state_game=PLAY_game;
+				//state_game=PLAY_game;
 			}
 		}
 		else if(keysPressed & KEY_RIGHT)
@@ -83,8 +83,9 @@ void game_main()
 		{
 			if(state_game==PLAY_game)
 			{
-				orion.speed.x = VY_INIT;
-				orion.speed.y = VX_INIT;
+				state_game = INIT_game;
+				//orion.speed.x = VY_INIT;
+				//orion.speed.y = VX_INIT;
 			}
 		}
 	}
