@@ -61,3 +61,13 @@ onOrbyt.nds
 # Mac OSX files
 .DS_Store
 Debug/
+
+# Build/imgs
+build/stars_background.h
+build/stars_background.s
+build/spaceship.h
+build/spaceship.s
+build/planetBW.h
+build/planetBW.s
+build/jupiter.h
+build/jupiter.s
