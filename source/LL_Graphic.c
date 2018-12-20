@@ -18,15 +18,19 @@
 u16 *gfx_Planet = NULL;
 u16 *gfx_Spaceship = NULL;
 
-void setUp_World_Background(struct Planets *Planet);
+void setUp_Stars_Background();
 void setUp_Spaceship_Background();
+void setUp_Planet_Background(struct Planets *Planet);
 void setUpPaletteRGB();
 void setUpPaletteRB();
 
 void graphic_gameInit(Planet* Planet)
 {
+
 	setUpPaletteRGB();
-	setUp_World_Background(Planet);
+
+	setUp_Stars_Background();
+	setUp_Planet_Background(Planet);
 	setUp_Spaceship_Background();
 
 }
@@ -50,9 +54,8 @@ void graphic_gameUpdate(Coordonnee* location)
 }
 
 
-void setUp_World_Background(struct Planets *Planet)
+void setUp_Stars_Background()
 {
-	int row=0,column=0;
 	u16 i =0;
 
 	REG_DISPCNT = MODE_5_2D | DISPLAY_BG2_ACTIVE | DISPLAY_BG0_ACTIVE;
@@ -76,21 +79,32 @@ void setUp_World_Background(struct Planets *Planet)
     	ptrGFX[i] = *( (u8*)stars_backgroundBitmap + i) + 252;
     }
 
-    // Setup for planets
-    i = 0;
-    swiCopy(planetBWTiles, (u32*)BG_TILE_RAM(4), planetBWTilesLen/2);
-    for(row = 0; row<4; row++)
-    {
-    	for(column=0;column<4;column++)
-    	{
-    		BG_MAP_RAM(26)[32*2 + 4 +row*32 + column] = planetBWMap[i];
-    		i++;
-
-    	}
-    }
 
 }
 
+void setUp_Planet_Background(struct Planets *Planet)
+{
+	int row, column;
+
+	BGCTRL[0] = BG_COLOR_256 | BG_MAP_BASE(26) | BG_TILE_BASE(4) | BG_32x32;
+	swiCopy(planetBWTiles, (u32*)BG_TILE_RAM(4), planetBWTilesLen/2);
+
+	u16 i = 0, j=0;
+	while(Planet[i].pos.x && Planet[i].pos.y)
+	{
+	    for(row = (Planet[i].pos.y/1000)/8 -2; row< (Planet[i].pos.y/1000)/8 +2; row++)
+	    {
+	    	for(column=(Planet[i].pos.x/1000)/8 ; column< 4+(Planet[i].pos.x/1000)/8 ; column++)
+	    	{
+	    		BG_MAP_RAM(26)[row*32 + column-2 ] = planetBWMap[j];
+	    		j++;
+
+	    	}
+	    }
+	    i++;
+	}
+
+}
 
 void setUp_Spaceship_Background()
 {
@@ -154,7 +168,6 @@ void setUpPaletteRB()
 			if(i<255)
 			{
 				ptr_palette[i] = ARGB16(1, (31/16)*r,0,(31/16)*b);
-				//printf("palette n%d = %d\n",i,ptr_palette[i]);
 			}
 			i++;
 		}
