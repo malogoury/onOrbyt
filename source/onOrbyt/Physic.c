@@ -13,7 +13,8 @@
 #include "Physic.h"
 
 void addBufferPos(Coordonnee* pos, Coordonnee new_pos, int length);
-void calc_acc(Coordonnee posPl, Coordonnee posSp, int mu, float* aX, float* aY);
+Coordonnee calc_acc(Coordonnee posPl, Coordonnee posSp, int mu);
+Coordonnee calc_pos(Coordonnee posSp, Coordonnee velSp, Coordonnee acc);
 
 void physic_init(Spacecraft* spacecraft)
 {
@@ -44,61 +45,49 @@ void physic_updatePos(Spacecraft* spacecraft, Planet* planets)
 
 	/////////////////////////// integer implementation ////////////////////////////////////////
 
-	Coordonnee acc = {0,0}, delta = {0,0}, new_pos = {0,0};
-	int r2=0,r=0;
+	Coordonnee acc = {0,0}, new_pos = {0,0};
+	Coordonnee tmp_acc={0,0};
 	int i;
 	for(i=0;i<NB_PLANETS;i++)
 	{
 		if(planets[i].mu != 0)
 		{
-			//printf("%d %d %d %d \n", spacecraft->pos[0].x, spacecraft->pos[0].y, planets[i].pos.x, planets[i].pos.y);
-			delta.x = planets[i].pos.x - spacecraft->pos[0].x/1000000; // delta.x max = 256
-			delta.y = planets[i].pos.y - spacecraft->pos[0].y/1000000; // delta.y max = 192
-			//printf("delta = %d %d \n",delta.x, delta.y);
-			r2 = delta.x*delta.x + delta.y*delta.y;			// r2 max = 256*256+192*192 = 102'400
-			r = (int)sqrt(r2);								// r max = 320
-			//printf("r2    = %d, %d \n", r2, r);
-			acc.x+=(planets[i].mu*delta.x)/(r2*r/N_ACC);   // r2*r max = 38'000'000 et mu*delta.x max = 15'360
-			acc.y+=(planets[i].mu*delta.y)/(r2*r/N_ACC);	// r2*r max = 38'000'000 et mu*delta.y max = 11'520
+			tmp_acc=calc_acc(planets[i].pos,spacecraft->pos[0],planets[i].mu);
+			acc.x+=tmp_acc.x;
+			acc.y+=tmp_acc.y;
 		}
 	}
 	//printf("acc   = %d %d \n", acc.x, acc.y);
-	new_pos.x=(spacecraft->pos[0].x)+(spacecraft->speed.x*dT)+(acc.x*dT*dT/(2*N_ACC));
-	new_pos.y=(spacecraft->pos[0].y)+(spacecraft->speed.y*dT)+(acc.y*dT*dT/(2*N_ACC));
+	new_pos = calc_pos(spacecraft->pos[0],spacecraft->speed,acc);
 	addBufferPos(spacecraft->pos,new_pos,NB_POS);
 	//printf("pos   = %d %d \n",spacecraft->pos[0].x,spacecraft->pos[0].y);
 	spacecraft->speed.x+=acc.x*dT/N_ACC;
 	spacecraft->speed.y+=acc.y*dT/N_ACC;
 	//printf("speed = %d %d \n",spacecraft->speed.x,spacecraft->speed.y);
-
-	/////////////////////////// float implementation ////////////////////////////////////////
-//	float tmp_aX=0.0,tmp_aY=0.0;
-//	float aX=0.0,aY=0.0;
-//	int i;
-//	for(i=0;i<NB_PLANETS;i++)
-//	{
-//		if(planets[i].mu != 0)
-//		{
-//			calc_acc(planets[i].pos,spacecraft->pos[0],planets[i].mu,&tmp_aX,&tmp_aY);
-//		}
-//	}
 }
 
-//void calc_acc(Coordonnee posPl, Coordonnee posSp, int mu, float* aX, float* aY)
-//{
-//	float dX=0.0, dY=0.0;
-//	float r2=0.0,r=0.0;
-//
-//	dX=posPl.x-(float)(posSp.x/N_POS);
-//	dY=posPl.y-(float)(posSp.y/N_POS);
-//
-//	r2=dX*dX+dY*dY;
-//	r=sqrt(r2);
-//
-//	*aX=(float)(mu*dX)/(r2*r/N_ACC);
-//	*aY=(float)(mu*dY)/(r2*r/N_ACC);
-//}
+Coordonnee calc_pos(Coordonnee posSp, Coordonnee velSp, Coordonnee acc)
+{
+	Coordonnee new_pos={0,0};
+	new_pos.x=(posSp.x)+(velSp.x*dT)+(acc.x*dT*dT/(2*N_ACC));
+	new_pos.y=(posSp.y)+(velSp.y*dT)+(acc.y*dT*dT/(2*N_ACC));
+	return new_pos;
+}
+Coordonnee calc_acc(Coordonnee posPl, Coordonnee posSp, int mu)
+{
+	Coordonnee acc={0,0}, delta={0,0};
+	int r2=0,r=0;
+	delta.x=posPl.x-posSp.x/N_POS;					// delta.x max = 256
+	delta.y=posPl.y-posSp.y/N_POS;					// delta.y max = 192
 
+	r2=delta.x*delta.x+delta.y*delta.y;				// r2 max = 256*256+192*192 = 102'400
+	r=(int)sqrt(r2);								// r max = 320
+
+	acc.x=(mu*delta.x)/(r2*r/N_ACC);				// r2*r max = 38'000'000 et mu*delta.x max = 15'360
+	acc.y=(mu*delta.y)/(r2*r/N_ACC);				// r2*r max = 38'000'000 et mu*delta.y max = 11'520
+
+	return acc;
+}
 void addBufferPos(Coordonnee* pos, Coordonnee new_pos, int length)
 {
 	int i;

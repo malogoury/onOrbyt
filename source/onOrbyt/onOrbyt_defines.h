@@ -11,8 +11,8 @@
 #define NB_POS			10
 #define NB_PLANETS		5
 #define X_INIT 			256/2			// pix
-#define Y_INIT			0			// pix
-#define VX_INIT			25			// pix/s
+#define Y_INIT			50			// pix
+#define VX_INIT			42			// pix/s
 #define VY_INIT			0			// pix/s
 #define RATIO_VEL_INIT	1			//
 #define dT				10			// ms
