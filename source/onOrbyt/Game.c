@@ -16,11 +16,11 @@ Planet planets[NB_PLANETS];
 FSM_game state_game=IDLE_game;
 
 void game_main();
+void game_reset();
 
 void game_init(void)
 {
 	map_init(planets, MAP1);
-	//printf("planet x = %d, y = %d \n", planets[0].pos.x, planets[0].pos.y);
 	graphic_gameInit(planets);
 	physic_init(&orion);
 	state_game=INIT_game;
@@ -37,10 +37,17 @@ void game_displayUpdate(void)
 	graphic_gameUpdate(orion.pos);
 }
 
+/*void game_reset()
+{
+	state_game=RESET_game;
+
+}*/
+
 void game_main()
 {
-	static Coordonnee touched = {0,0};
-	unsigned keysPressed,keysReleased;
+	FSM_sub state_arrow=INIT_sub;
+	Coordonnee touched = {0,0};
+	int keysPressed,keysReleased;
 	touchPosition touch;
 	while(1)
 	{
@@ -50,25 +57,26 @@ void game_main()
 		if(keysPressed & KEY_TOUCH)
 		{
 			touchRead(&touch);
-			//printf("%d %d \n",touch.px,touch.py);
-			if(touch.px || touch.py)
+			printf("%d %d \n",touch.px,touch.py);
+			if((touch.px || touch.py) && state_arrow==INIT_sub)
 			{
+				if(state_game == PLAY_game)
+					game_init();
 				touched.x=touch.px;
 				touched.y=touch.py;
-				printf("Hello there \n");
+				state_arrow=DRAG_sub;
 			}
 		}
-		else if(keysReleased & KEY_TOUCH)
+		else if(keysReleased & KEY_TOUCH && state_game == INIT_game)
 		{
 			touchRead(&touch);
-			if(state_game == INIT_game && (touch.px || touch.py))
-			{
-				Coordonnee vect;
-				vect.x = touched.x-touch.px;
-				vect.y = touched.y-touch.py;
-				orion.speed = physic_velocityInit(vect);
-				state_game=PLAY_game;
-			}
+			Coordonnee vect;
+			vect.x = touched.x-touch.px;
+			vect.y = touched.y-touch.py;
+			//printf("%d, %d\n",vect.x,vect.y);
+
+			orion.speed = physic_velocityInit(vect);
+			state_game=PLAY_game;
 		}
 		else if(keysPressed & KEY_RIGHT)
 		{
@@ -88,5 +96,7 @@ void game_main()
 				//orion.speed.y = VX_INIT;
 			}
 		}
+		game_displayUpdate();
+		swiWaitForVBlank();
 	}
 }

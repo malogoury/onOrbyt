@@ -15,7 +15,6 @@ int main(void) {
     consoleDemoInit();
     printf("\nHello World!\n");
 
-    irqInit();
     timer_init();
     gameplay_init();
 
