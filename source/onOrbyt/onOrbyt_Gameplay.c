@@ -17,7 +17,11 @@ FSM state=IDLE;
 
 void gameplay_main()
 {
-	if(state==MENU) state=GAME;
+	if(state==MENU)
+	{
+		menu_init();
+		state = GAME;
+	}
 	if (state==GAME) game_init();
 }
 

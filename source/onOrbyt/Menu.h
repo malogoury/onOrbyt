@@ -10,3 +10,7 @@
 
 
 #endif /* MENU_H_ */
+
+#include "../LL_Graphic.h"
+
+void menu_init();

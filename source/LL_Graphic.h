@@ -18,6 +18,9 @@
 #include "spaceship.h"
 #include "mami.h"
 #include "planetBW.h"
+#include "menu_img.h"
 
 void graphic_gameInit(Planet* Planet);
 void graphic_gameUpdate(Coordonnee* location);
+
+void graphic_menuInit();

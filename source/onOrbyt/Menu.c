@@ -8,3 +8,9 @@
  */
 
 #include "Menu.h"
+
+void menu_init()
+{
+	graphic_menuInit();
+
+}

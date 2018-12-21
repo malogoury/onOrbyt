@@ -35,6 +35,23 @@ void graphic_gameInit(Planet* Planet)
 
 }
 
+void graphic_menuInit()
+{
+	REG_DISPCNT = MODE_5_2D | DISPLAY_BG2_ACTIVE;
+	VRAM_A_CR = VRAM_ENABLE | VRAM_A_MAIN_BG;
+
+	BGCTRL[2] = BG_BMP_BASE(0) | BgSize_B8_256x256;
+
+    //Affine Marix Transformation
+    REG_BG2PA = 256;
+    REG_BG2PC = 0;
+    REG_BG2PB =  0;
+    REG_BG2PD = 256;
+
+	swiCopy(menu_imgPal, BG_PALETTE, menu_imgPalLen);
+	swiCopy(menu_imgBitmap, BG_GFX, menu_imgBitmapLen);
+}
+
 void graphic_gameUpdate(Coordonnee* location)
 {
     oamSet(&oamMain,
@@ -61,8 +78,6 @@ void setUp_Stars_Background()
 	REG_DISPCNT = MODE_5_2D | DISPLAY_BG2_ACTIVE | DISPLAY_BG0_ACTIVE;
 	VRAM_A_CR = VRAM_ENABLE | VRAM_A_MAIN_BG;
 
-
-	BGCTRL[0] = BG_COLOR_256 | BG_MAP_BASE(26) | BG_TILE_BASE(4) | BG_32x32;
 	BGCTRL[2] = BG_BMP_BASE(0)|BgSize_B8_256x256;
 
 
@@ -90,6 +105,20 @@ void setUp_Planet_Background(struct Planets *Planet)
 	swiCopy(planetBWTiles, (u32*)BG_TILE_RAM(4), planetBWTilesLen/2);
 
 	u16 i = 0, j=0;
+
+	// Clear memory from menu image
+	for(i=0; i<32; i++)
+	{
+		for(j=0; j<32;j++)
+		{
+			BG_MAP_RAM(26)[32*i+j] = 0;
+		}
+	}
+
+	i = 0;
+	j = 0;
+
+	// Display planets
 	while(Planet[i].pos.x && Planet[i].pos.y)
 	{
 	    for(row = (Planet[i].pos.y)/8 -2; row< (Planet[i].pos.y)/8 +2; row++)

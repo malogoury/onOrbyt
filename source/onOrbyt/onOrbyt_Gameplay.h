@@ -9,6 +9,7 @@
 #define ONORBYT_GAMEPLAY_H_
 
 #include "Game.h"
+#include "Menu.h"
 
 typedef enum FSM{IDLE,MENU,GAME,RESET,ERROR} FSM;
 
