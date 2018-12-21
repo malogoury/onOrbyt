@@ -67,15 +67,15 @@ void game_main()
 				vect.x = touched.x-touch.px;
 				vect.y = touched.y-touch.py;
 				orion.speed = physic_velocityInit(vect);
-				//state_game=PLAY_game;
+				state_game=PLAY_game;
 			}
 		}
 		else if(keysPressed & KEY_RIGHT)
 		{
 			if(state_game==INIT_game)
 			{
-				orion.speed.x = VX_INIT;
-				orion.speed.y = VY_INIT;
+				orion.speed.x = VX_INIT*N_VEL;
+				orion.speed.y = VY_INIT*N_VEL;
 				state_game=PLAY_game;
 			}
 		}

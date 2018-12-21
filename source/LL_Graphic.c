@@ -39,7 +39,7 @@ void graphic_gameUpdate(Coordonnee* location)
 {
     oamSet(&oamMain,
     		0,
-    		location[0].x/1000 - SIZE_SPRITE/2, location[0].y/1000 - SIZE_SPRITE/2,
+    		location[0].x/N_POS - SIZE_SPRITE/2, location[0].y/N_POS - SIZE_SPRITE/2,
     		0,
     		0,
     		SpriteSize_32x32,
@@ -92,9 +92,9 @@ void setUp_Planet_Background(struct Planets *Planet)
 	u16 i = 0, j=0;
 	while(Planet[i].pos.x && Planet[i].pos.y)
 	{
-	    for(row = (Planet[i].pos.y/1000)/8 -2; row< (Planet[i].pos.y/1000)/8 +2; row++)
+	    for(row = (Planet[i].pos.y)/8 -2; row< (Planet[i].pos.y)/8 +2; row++)
 	    {
-	    	for(column=(Planet[i].pos.x/1000)/8 ; column< 4+(Planet[i].pos.x/1000)/8 ; column++)
+	    	for(column=(Planet[i].pos.x)/8 ; column< 4+(Planet[i].pos.x)/8 ; column++)
 	    	{
 	    		BG_MAP_RAM(26)[row*32 + column-2 ] = planetBWMap[j];
 	    		j++;
