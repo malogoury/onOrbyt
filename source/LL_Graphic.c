@@ -74,26 +74,26 @@ void graphic_gameUpdate(Coordonnee* location)
 }
 
 
-void graphic_gameUpdateSub(Coordonnee* fleche)
+void graphic_gameUpdateSub(Coordonnee p0, Coordonnee p1)
 {
 	u8 *ptr_GFX_sub = (u8*)BG_GFX_SUB;
 
 	int sens = 1;
-	if((fleche[0].x)||(fleche[0].y))
+	if((p0.x)||(p0.y))
 	{
-		if((fleche[0].x>fleche[1].x)||(fleche[0].y>fleche[1].y)) //reverse if not in right order
+		if((p0.x>p1.x)||(p0.y>p1.y)) //reverse if not in right order
 		{
 			sens = (-1)*sens;
 
-			u16 var_interX = fleche[0].x;
-			fleche[0].x = fleche[1].x;
-			fleche[1].x = var_interX;
+			u16 var_interX = p0.x;
+			p0.x = p1.x;
+			p1.x = var_interX;
 
-			u16 var_interY = fleche[0].y;
-			fleche[0].y = fleche[1].y;
-			fleche[1].y = var_interY;
+			u16 var_interY = p0.y;
+			p0.y = p1.y;
+			p1.y = var_interY;
 
-			if((fleche[0].x<fleche[1].x)&&(fleche[0].y<fleche[1].y)) //reverse if not in right order
+			if((p0.x<p1.x)&&(p0.y<p1.y)) //reverse if not in right order
 			{
 				sens = (-1)*sens;
 			}
@@ -101,26 +101,26 @@ void graphic_gameUpdateSub(Coordonnee* fleche)
 		}
 
 
-		if(fleche[0].x<0 || fleche[0].y<0) //check boundaries
+		if(p0.x<0 || p0.y<0) //check boundaries
 		{
 			return;
 		}
-		if(fleche[1].x>250 || fleche[0].x>180) //check boundaries
+		if(p1.x>250 || p0.x>180) //check boundaries
 		{
 			return;
 		}
 
-		if( (fleche[0].x != fleche[1].x)||(fleche[0].y != fleche[1].y))
+		if( (p0.x != p1.x)||(p0.y != p1.y))
 		{
 			int i= 0,j= 0, reste= 0;
 
-			int slope = (fleche[1].x-fleche[0].x)/(fleche[1].y-fleche[0].y);
+			int slope = (p1.x-p0.x)/(p1.y-p0.y);
 			if(slope == 0)
 			{
-				slope = (fleche[1].y-fleche[0].y)/(fleche[1].x-fleche[0].x);
+				slope = (p1.y-p0.y)/(p1.x-p0.x);
 
-				j = fleche[0].x;
-				for(i = fleche[0].y; i < fleche[1].y; i++)
+				j = p0.x;
+				for(i = p0.y; i < p1.y; i++)
 				{
 					/*for(k=(-1)*thickness; k<thickness; k++)
 					{
@@ -129,7 +129,7 @@ void graphic_gameUpdateSub(Coordonnee* fleche)
 
 					ptr_GFX_sub[256*i + j] = 150;
 					//thickness++;
-					if( ((i-fleche[0].y)%slope)==0 )
+					if( ((i-p0.y)%slope)==0 )
 					{
 						j+=sens;
 					}
@@ -138,8 +138,8 @@ void graphic_gameUpdateSub(Coordonnee* fleche)
 			}
 			else
 			{
-				j = fleche[0].y;
-				for(i = fleche[0].x*sens; i < fleche[1].x*sens; i++)
+				j = p0.y;
+				for(i = p0.x*sens; i < p1.x*sens; i++)
 				{
 					/*for(k=(-1)*thickness; k<thickness; k++)
 					{
@@ -149,7 +149,7 @@ void graphic_gameUpdateSub(Coordonnee* fleche)
 					ptr_GFX_sub[256*50 + 10] = 150;
 					ptr_GFX_sub[256*j + i*sens] = 150;
 					//thickness++;
-					if( (i*sens-fleche[0].x)%abs(slope) == 0)
+					if( (i*sens-p0.x)%abs(slope) == 0)
 					{
 						j++;
 					}

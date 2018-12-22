@@ -14,18 +14,22 @@
 Spacecraft orion;
 Planet planets[NB_PLANETS];
 FSM_game state_game=IDLE_game;
+Coordonnee arrow[2]={{0,0},{0,0}};
 
 void game_main();
 void game_reset();
 
 void game_init(void)
 {
-	if (state_game==IDLE_game)
-		map_init(planets, MAP1);
+	map_init(planets, MAP1);
+	game_reset();
+	game_main();
+}
+void game_reset()
+{
 	graphic_gameInit(planets);
 	physic_init(&orion);
 	state_game=INIT_game;
-	game_main();
 }
 void game_update(void)
 {
@@ -35,58 +39,45 @@ void game_update(void)
 
 void game_displayUpdate(void)
 {
-	Coordonnee fleche[2];
-	fleche[0].x = 100;
-	fleche[0].y = 100;
-	fleche[1].x = 120;
-	fleche[1].y = 150;
-
 	graphic_gameUpdate(orion.pos);
-	graphic_gameUpdateSub(fleche);
+	if(state_game==INIT_game)
+		graphic_gameUpdateSub(arrow[FRONT],arrow[TAIL]);
 }
 
 void game_main()
 {
 	FSM_sub state_arrow=INIT_sub;
-	Coordonnee touched = {0,0};
-	Coordonnee tmp_touch = {0,0};
 	touchPosition touch;
 	while(1)
 	{
 		scanKeys();
 		if(keysDown() & KEY_TOUCH)
 		{
+			printf("hello %d\n",(int)state_arrow);
 			touchRead(&touch);
 			if((touch.px || touch.py) && state_arrow==INIT_sub)
 			{
 				if(state_game == PLAY_game)
-					game_init();
-				touched.x=touch.px;
-				touched.y=touch.py;
-				printf("%d %d \n",touched.x,touched.y);
+					game_reset();
+				arrow[FRONT].x=touch.px;
+				arrow[FRONT].y=touch.py;
 				state_arrow=DRAG_sub;
 			}
 		}
-		else if(keysUp() & KEY_TOUCH)
+		else if(keysUp() & KEY_TOUCH && state_arrow==DRAG_sub)
 		{
-			touchRead(&touch);
 			Coordonnee vect;
-			vect.x = touched.x-tmp_touch.x;
-			vect.y = touched.y-tmp_touch.y;
-			printf("%d,%d\n",touched.x,touched.y);
-
+			vect.x = arrow[FRONT].x-arrow[TAIL].x;
+			vect.y = arrow[FRONT].y-arrow[TAIL].y;
 			orion.speed = physic_velocityInit(vect);
+			state_arrow=INIT_sub;
 			state_game=PLAY_game;
 		}
-		if(keysHeld() & KEY_TOUCH)
+		if(keysHeld() & KEY_TOUCH && state_arrow==DRAG_sub)
 		{
 			touchRead(&touch);
-			if(state_arrow==DRAG_sub)
-			{
-				tmp_touch.x=touch.px;
-				tmp_touch.y=touch.py;
-				//printf("%d,%d\n",tmp_touch.x,tmp_touch.y);
-			}
+			arrow[TAIL].x=touch.px;
+			arrow[TAIL].y=touch.py;
 		}
 		if(keysDown() & KEY_RIGHT)
 		{
