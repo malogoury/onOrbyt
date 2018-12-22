@@ -20,7 +20,8 @@ void game_reset();
 
 void game_init(void)
 {
-	map_init(planets, MAP1);
+	if (state_game==IDLE_game)
+		map_init(planets, MAP1);
 	graphic_gameInit(planets);
 	physic_init(&orion);
 	state_game=INIT_game;
@@ -37,48 +38,50 @@ void game_displayUpdate(void)
 	graphic_gameUpdate(orion.pos);
 }
 
-/*void game_reset()
-{
-	state_game=RESET_game;
-
-}*/
-
 void game_main()
 {
 	FSM_sub state_arrow=INIT_sub;
 	Coordonnee touched = {0,0};
-	int keysPressed,keysReleased;
+	Coordonnee tmp_touch = {0,0};
 	touchPosition touch;
 	while(1)
 	{
 		scanKeys();
-		keysPressed = keysDown();
-		keysReleased = keysUp();
-		if(keysPressed & KEY_TOUCH)
+		if(keysDown() & KEY_TOUCH)
 		{
 			touchRead(&touch);
-			printf("%d %d \n",touch.px,touch.py);
 			if((touch.px || touch.py) && state_arrow==INIT_sub)
 			{
 				if(state_game == PLAY_game)
 					game_init();
 				touched.x=touch.px;
 				touched.y=touch.py;
+				printf("%d %d \n",touched.x,touched.y);
 				state_arrow=DRAG_sub;
 			}
 		}
-		else if(keysReleased & KEY_TOUCH && state_game == INIT_game)
+		else if(keysUp() & KEY_TOUCH)
 		{
 			touchRead(&touch);
 			Coordonnee vect;
-			vect.x = touched.x-touch.px;
-			vect.y = touched.y-touch.py;
-			//printf("%d, %d\n",vect.x,vect.y);
+			vect.x = touched.x-tmp_touch.x;
+			vect.y = touched.y-tmp_touch.y;
+			printf("%d,%d\n",touched.x,touched.y);
 
 			orion.speed = physic_velocityInit(vect);
 			state_game=PLAY_game;
 		}
-		else if(keysPressed & KEY_RIGHT)
+		if(keysHeld() & KEY_TOUCH)
+		{
+			touchRead(&touch);
+			if(state_arrow==DRAG_sub)
+			{
+				tmp_touch.x=touch.px;
+				tmp_touch.y=touch.py;
+				//printf("%d,%d\n",tmp_touch.x,tmp_touch.y);
+			}
+		}
+		if(keysDown() & KEY_RIGHT)
 		{
 			if(state_game==INIT_game)
 			{
@@ -87,13 +90,11 @@ void game_main()
 				state_game=PLAY_game;
 			}
 		}
-		else if(keysPressed & KEY_DOWN)
+		else if(keysDown() & KEY_DOWN)
 		{
-			if(state_game==PLAY_game)
+			if(state_game == PLAY_game)
 			{
-				state_game = INIT_game;
-				//orion.speed.x = VY_INIT;
-				//orion.speed.y = VX_INIT;
+				game_init();
 			}
 		}
 		game_displayUpdate();
