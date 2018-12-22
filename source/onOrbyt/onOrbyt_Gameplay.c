@@ -12,7 +12,6 @@
 #include <nds.h>
 #include "onOrbyt_Gameplay.h"
 
-void ISR_VBLANK();
 FSM state=IDLE;
 
 void gameplay_main()
@@ -27,8 +26,6 @@ void gameplay_main()
 
 void gameplay_init(void)
 {
-	irqSet(IRQ_VBLANK,&ISR_VBLANK);
-	irqEnable(IRQ_VBLANK);
 	state = MENU;
 	gameplay_main();
 }
@@ -44,9 +41,4 @@ void gameplay_displayUpdate(void)
 {
 	if(state==GAME);
 		game_displayUpdate();
-}
-
-void ISR_VBLANK()
-{
-	gameplay_displayUpdate();
 }
