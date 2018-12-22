@@ -8,6 +8,9 @@
 #include "Map.h"
 
 void map1_init(Planet* planets);
+void map2_init(Planet* planets);
+void map3_init(Planet* planets);
+void map4_init(Planet* planets);
 
 void map_init(Planet* planets, Maps map)
 {
@@ -15,6 +18,15 @@ void map_init(Planet* planets, Maps map)
 	{
 		case MAP1:
 			map1_init(planets);
+			break;
+		case MAP2:
+			map2_init(planets);
+			break;
+		case MAP3:
+			map3_init(planets);
+			break;
+		case MAP4:
+			map4_init(planets);
 			break;
 		default:
 			break;
@@ -37,4 +49,19 @@ void map1_init(Planet *planets)
 		planets[i].pos.y = 0;
 		planets[i].radius = 0;
 	}
+}
+
+void map2_init(Planet *planets)
+{
+
+}
+
+void map3_init(Planet *planets)
+{
+
+}
+
+void map4_init(Planet *planets)
+{
+
 }

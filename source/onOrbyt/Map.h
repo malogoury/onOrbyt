@@ -10,7 +10,7 @@
 
 #include "onOrbyt_defines.h"
 
-typedef enum Maps{MAP1,MAP2,MAP3,MAP5} Maps;
+typedef enum Maps{MAP1,MAP2,MAP3,MAP4} Maps;
 
 typedef struct Coordonnees Coordonnee;
 struct Coordonnees

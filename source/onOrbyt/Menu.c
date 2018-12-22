@@ -8,6 +8,7 @@
  */
 
 #include <nds.h>
+#include <stdio.h>
 #include "Menu.h"
 
 void menu_main(Maps* map);
@@ -19,7 +20,7 @@ void menu_init(Maps* map)
 
 void menu_main(Maps* map)
 {
-	printf("press down to select unique map: MAP1\n");
+	printf("press down to select unique map MAP1\n");
 	while(1)
 	{
 		scanKeys();
