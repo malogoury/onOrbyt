@@ -35,10 +35,10 @@ void game_update(void)
 void game_displayUpdate(void)
 {
 	Coordonnee fleche[2];
-	fleche[0].x = 100;
-	fleche[0].y = 100;
-	fleche[1].x = 120;
-	fleche[1].y = 150;
+	fleche[0].x = 190;
+	fleche[0].y = 190;
+	fleche[1].x = 50;
+	fleche[1].y = 50;
 
 	graphic_gameUpdate(orion.pos);
 	graphic_gameUpdateSub(fleche);
