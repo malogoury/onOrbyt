@@ -39,6 +39,7 @@ void game_update(void)
 
 void game_displayUpdate(void)
 {
+
 	graphic_gameUpdate(orion.pos);
 	if(state_game==INIT_game)
 		graphic_gameUpdateSub(arrow[FRONT],arrow[TAIL]);

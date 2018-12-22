@@ -11,7 +11,10 @@
 #include "LL_Graphic.h"
 #define	OFFSET_PALETTE	0
 #define	SLOP_PALETTE	10
-
+#define COLOR_ARROW		200
+#define	SLOPE_ARROW		5
+#define	SIZE_SCREEN_X	256
+#define	SIZE_SCREEN_Y	192
 
 #define SIZE_SPRITE		32
 
@@ -24,6 +27,8 @@ void setUp_Planet_Background(struct Planets *Planet);
 void setUpPaletteRGB();
 void setUpPaletteRB();
 void setUp_gameSub();
+void drawLine(Coordonnee* fleche);
+void drawLineRotation(double angle, int size);
 
 void graphic_gameInit(Planet* Planet)
 {
@@ -76,90 +81,11 @@ void graphic_gameUpdate(Coordonnee* location)
 
 void graphic_gameUpdateSub(Coordonnee p0, Coordonnee p1)
 {
-	u8 *ptr_GFX_sub = (u8*)BG_GFX_SUB;
-
-	int sens = 1;
-	if((p0.x)||(p0.y))
-	{
-		if((p0.x>p1.x)||(p0.y>p1.y)) //reverse if not in right order
-		{
-			sens = (-1)*sens;
-
-			u16 var_interX = p0.x;
-			p0.x = p1.x;
-			p1.x = var_interX;
-
-			u16 var_interY = p0.y;
-			p0.y = p1.y;
-			p1.y = var_interY;
-
-			if((p0.x<p1.x)&&(p0.y<p1.y)) //reverse if not in right order
-			{
-				sens = (-1)*sens;
-			}
-
-		}
+	double angle = atan2( (p1.x-p0.x),(p1.y-p0.y) );
+	int size = sqrt((p0.x-p1.x)*(p0.x-p1.x) + (p0.y-p1.y)*(p0.y-p1.y));
+	drawLineRotation(angle, size);
 
 
-		if(p0.x<0 || p0.y<0) //check boundaries
-		{
-			return;
-		}
-		if(p1.x>250 || p0.x>180) //check boundaries
-		{
-			return;
-		}
-
-		if( (p0.x != p1.x)||(p0.y != p1.y))
-		{
-			int i= 0,j= 0, reste= 0;
-
-			int slope = (p1.x-p0.x)/(p1.y-p0.y);
-			if(slope == 0)
-			{
-				slope = (p1.y-p0.y)/(p1.x-p0.x);
-
-				j = p0.x;
-				for(i = p0.y; i < p1.y; i++)
-				{
-					/*for(k=(-1)*thickness; k<thickness; k++)
-					{
-						ptr_GFX_sub[256*i + j +k] = 100 +k;
-					}*/
-
-					ptr_GFX_sub[256*i + j] = 150;
-					//thickness++;
-					if( ((i-p0.y)%slope)==0 )
-					{
-						j+=sens;
-					}
-				}
-
-			}
-			else
-			{
-				j = p0.y;
-				for(i = p0.x*sens; i < p1.x*sens; i++)
-				{
-					/*for(k=(-1)*thickness; k<thickness; k++)
-					{
-						ptr_GFX_sub[256*i + j +k] = 100 +k;
-					}*/
-
-					ptr_GFX_sub[256*50 + 10] = 150;
-					ptr_GFX_sub[256*j + i*sens] = 150;
-					//thickness++;
-					if( (i*sens-p0.x)%abs(slope) == 0)
-					{
-						j++;
-					}
-				}
-
-			}
-			//int k =0,thickness = 1;
-
-		}
-	}
 
 
 }
@@ -325,13 +251,172 @@ void setUp_gameSub()
 
     for(i=0; i<255; i++)
     {
-    	ptr_palette_sub[i] = ARGB16(1,(31*i)/256, 0, (31*i)/256);
+    	ptr_palette_sub[i] = ARGB16(1,(20*i)/256, 0, (31*i)/256);
     }
 
-    for(i=0; i<256*192; i++)
+    for(i=0; i<256*208 ; i++)
     {
     	ptr_GFX_sub[i] = 0;
     }
 
 }
+
+
+void drawLine(Coordonnee* fleche)
+{
+	u8 *ptr_GFX_sub = (u8*)BG_GFX_SUB;
+
+	if((fleche[0].x)||(fleche[0].y))
+	{
+		return;
+	}
+	if(fleche[0].x<0 || fleche[0].x>256 || fleche[0].y<0 || fleche[0].y>192) //check boundaries
+	{
+		return;
+	}
+	if(fleche[1].x<0 || fleche[1].x>256 || fleche[1].y<0 || fleche[1].y>192) //check boundaries
+	{
+		return;
+	}
+
+	// Let's see all possibilities
+	int i= 0,j= 0;
+
+	if((fleche[0].y>fleche[1].y)) // 0 to pi radian
+	{
+		if((fleche[0].x<fleche[1].x)) // 0 to pi/2 radian
+		{
+			int slope = (fleche[0].y-fleche[1].y)/(fleche[1].x-fleche[0].x);
+			if(slope == 0)  		  // 0 to pi/4 radian
+			{
+				slope = (fleche[1].x-fleche[0].x)/(fleche[1].y-fleche[0].y);
+
+				j = fleche[0].y;
+				for(i = fleche[0].x; i < fleche[1].x; i++)
+				{
+					/*for(k=(-1)*thickness; k<thickness; k++)
+					{
+						ptr_GFX_sub[256*i + j +k] = 100 +k;
+					}*/
+
+					ptr_GFX_sub[256*j + i] = COLOR_ARROW;
+					//thickness++;
+					if( ((i-fleche[0].x)%slope)==0 )
+					{
+						j++;
+					}
+				}
+
+			}
+			else		// pi/4 to pi/2 radian
+			{
+				j = fleche[1].x;
+				for(i = fleche[1].y; i < fleche[0].y; i++)
+				{
+					/*for(k=(-1)*thickness; k<thickness; k++)
+					{
+						ptr_GFX_sub[256*i + j +k] = 100 +k;
+					}*/
+
+					ptr_GFX_sub[256*i + j] = COLOR_ARROW;
+					//thickness++;
+					if( (i-fleche[1].y)%slope == 0)
+					{
+						j--;
+					}
+				}
+			}
+		}
+		else	// pi/2 to pi radian
+		{
+			int slope = (fleche[0].x-fleche[1].x)/(fleche[0].y-fleche[1].y );
+			if(slope == 0)  		  // pi/2 to 3pi/4 radian
+			{
+				slope = (fleche[0].y-fleche[1].y)/(fleche[0].x-fleche[1].x);
+
+				j = fleche[1].x;
+				for(i = fleche[1].y; i < fleche[0].y; i++)
+				{
+					/*for(k=(-1)*thickness; k<thickness; k++)
+					{
+						ptr_GFX_sub[256*i + j +k] = 100 +k;
+					}*/
+
+					ptr_GFX_sub[256*i + j] = COLOR_ARROW;
+					//thickness++;
+					if( ((i-fleche[1].y)%slope)== 0 )
+					{
+						j++;
+					}
+				}
+
+			}
+			else		// pi/4 to pi/2 radian
+			{
+				j = fleche[1].x;
+				for(i = fleche[1].y; i < fleche[0].y; i++)
+				{
+					/*for(k=(-1)*thickness; k<thickness; k++)
+					{
+						ptr_GFX_sub[256*i + j +k] = 100 +k;
+					}*/
+
+					ptr_GFX_sub[256*i + j] = COLOR_ARROW;
+					//thickness++;
+					if( (i-fleche[1].y)%slope == 0)
+					{
+						j--;
+					}
+				}
+			}
+
+		}
+	}
+}
+
+
+void drawLineRotation(double angle, int size)
+{
+	if(size>SIZE_SCREEN_Y)
+	{
+		size = SIZE_SCREEN_Y;
+	}
+
+	u8 *ptr_GFX_sub = (u8*)BG_GFX_SUB;
+	int row, column, t, thickness =1;
+
+	for(row=0; row<SIZE_SCREEN_Y; row++)
+	{
+		for(column = 0; column < SIZE_SCREEN_X; column++)
+		{
+
+			ptr_GFX_sub[row*256 + column] = 0;
+		}
+
+		if( (row<SIZE_SCREEN_Y/2 +size/2) && (row>SIZE_SCREEN_Y/2 -size/2) )
+		{
+			for(t= -thickness/2; t< thickness/2; t++)
+			{
+				ptr_GFX_sub[row*SIZE_SCREEN_X + SIZE_SCREEN_X/2 + t] = COLOR_ARROW ;
+			}
+
+			if( ((row-SIZE_SCREEN_Y/2))%(SLOPE_ARROW) == 0 )
+			{
+				thickness++;
+			}
+
+		}
+
+	}
+
+    REG_BG2PA_SUB = cos(angle)*256;
+    REG_BG2PC_SUB = sin(angle)*256;
+    REG_BG2PB_SUB = (-1)*sin(angle)*256;
+    REG_BG2PD_SUB = cos(angle)*256;
+
+    REG_BG2X_SUB = ( (-SIZE_SCREEN_X/2)*(cos(angle)-1) + (SIZE_SCREEN_Y/2)*sin(angle) )*256;
+    REG_BG2Y_SUB = ( (-SIZE_SCREEN_X/2)*sin(angle) - (SIZE_SCREEN_Y/2)*(cos(angle)-1) )*256;
+
+}
+
 
