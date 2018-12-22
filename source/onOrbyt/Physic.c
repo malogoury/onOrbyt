@@ -99,7 +99,7 @@ void addBufferPos(Coordonnee* pos, Coordonnee new_pos, int length)
 Coordonnee physic_velocityInit(Coordonnee vect)
 {
 	Coordonnee velocity;
-	velocity.x = vect.x/RATIO_VEL_INIT;
-	velocity.y = vect.y/RATIO_VEL_INIT;
+	velocity.x = vect.x*N_VEL/RATIO_VEL_INIT;
+	velocity.y = vect.y*N_VEL/RATIO_VEL_INIT;
 	return velocity;
 }

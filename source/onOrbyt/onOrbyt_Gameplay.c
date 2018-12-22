@@ -16,12 +16,13 @@ FSM state=IDLE;
 
 void gameplay_main()
 {
+	Maps map=MAP2;
 	if(state==MENU)
 	{
-		menu_init();
+		menu_init(&map);
 		state = GAME;
 	}
-	if (state==GAME) game_init();
+	if (state==GAME) game_init(map);
 }
 
 void gameplay_init(void)

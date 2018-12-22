@@ -79,16 +79,13 @@ void graphic_gameUpdate(Coordonnee* location)
 }
 
 
-void graphic_gameUpdateSub(Coordonnee* fleche)
+void graphic_gameUpdateSub(Coordonnee p0, Coordonnee p1)
 {
-	double angle = atan2( (fleche[1].x-fleche[0].x),(fleche[1].y-fleche[0].y) );
-	int size = (fleche[0].x-fleche[1].x) + (fleche[0].y-fleche[1].y);
+	double angle = atan2( (p1.x-p0.x),(p1.y-p0.y) );
+	int size = sqrt((p0.x-p1.x)*(p0.x-p1.x) + (p0.y-p1.y)*(p0.y-p1.y));
 	drawLineRotation(angle, size);
 
-	if(size<SIZE_SCREEN_Y-2)
-	{
-		size ++;
-	}
+
 
 
 }

@@ -22,6 +22,6 @@
 
 void graphic_gameInit(Planet* Planet);
 void graphic_gameUpdate(Coordonnee* location);
-void graphic_gameUpdateSub(Coordonnee* location);
+void graphic_gameUpdateSub(Coordonnee p0, Coordonnee p1);
 
 void graphic_menuInit();

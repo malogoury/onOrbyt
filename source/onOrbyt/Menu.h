@@ -12,5 +12,6 @@
 #endif /* MENU_H_ */
 
 #include "../LL_Graphic.h"
+#include "Map.h"
 
-void menu_init();
+void menu_init(Maps* map);

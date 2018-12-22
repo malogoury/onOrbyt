@@ -10,6 +10,7 @@
 
 #include "Game.h"
 #include "Menu.h"
+#include "Map.h"
 
 typedef enum FSM{IDLE,MENU,GAME,RESET,ERROR} FSM;
 

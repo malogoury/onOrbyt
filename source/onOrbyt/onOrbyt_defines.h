@@ -24,5 +24,6 @@
 #define N_VEL			1000		// Ratio to correct velocity unit
 #define	N_POS			1000000		// Ratio to correct position unit
 
-
+#define FRONT			0
+#define	TAIL			1
 #endif /* ONORBYT_DEFINES_H_ */
