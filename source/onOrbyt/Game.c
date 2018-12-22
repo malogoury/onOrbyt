@@ -19,9 +19,9 @@ Coordonnee arrow[2]={{0,0},{0,0}};
 void game_main();
 void game_reset();
 
-void game_init(void)
+void game_init(Maps map)
 {
-	map_init(planets, MAP1);
+	map_init(planets, map);
 	game_reset();
 	game_main();
 }
@@ -92,7 +92,7 @@ void game_main()
 		{
 			if(state_game == PLAY_game)
 			{
-				game_init();
+				game_reset();
 			}
 		}
 		game_displayUpdate();
