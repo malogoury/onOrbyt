@@ -16,7 +16,7 @@ FSM state=IDLE;
 
 void gameplay_main()
 {
-	Maps map=MAP2;
+	Maps map=MAP1;
 	if(state==MENU)
 	{
 		menu_init(&map);

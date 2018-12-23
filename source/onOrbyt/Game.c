@@ -40,7 +40,7 @@ void game_update(void)
 void game_displayUpdate(void)
 {
 
-	graphic_gameUpdate(orion.pos);
+	graphic_gameUpdate(orion.pos,orion.speed);
 	if(state_game==INIT_game)
 		graphic_gameUpdateSub(arrow[FRONT],arrow[TAIL]);
 }

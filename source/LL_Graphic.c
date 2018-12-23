@@ -8,6 +8,7 @@
  */
 
 #include <nds.h>
+#include <math.h>
 #include "LL_Graphic.h"
 #define	OFFSET_PALETTE	0
 #define	SLOP_PALETTE	10
@@ -60,7 +61,7 @@ void graphic_menuInit()
 	swiCopy(menu_imgBitmap, BG_GFX, menu_imgBitmapLen);
 }
 
-void graphic_gameUpdate(Coordonnee* location)
+void graphic_gameUpdate(Coordonnee* location, Coordonnee dir)
 {
     oamSet(&oamMain,
     		0,
@@ -76,6 +77,9 @@ void graphic_gameUpdate(Coordonnee* location)
     		false, false,
     		false);
     oamUpdate(&oamMain);
+
+    float theta=0.0;
+    theta=tan(dir.y/dir.x);
 }
 
 

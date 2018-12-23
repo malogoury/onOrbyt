@@ -14,4 +14,7 @@
 #include "../LL_Graphic.h"
 #include "Map.h"
 
+typedef enum FSM_menu {IDLE_menu,INIT_menu,SELECT_menu,PLAY_menu,
+	RESET_menu,ERROR_menu} FSM_menu;
+
 void menu_init(Maps* map);
