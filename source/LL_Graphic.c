@@ -20,12 +20,15 @@
 #define SIZE_SPRITE		64
 #define	PI				3.14159
 
+#define N_PLANET_MAX	5
+
 u16 *gfx_Planet = NULL;
 u16 *gfx_Spaceship = NULL;
 
 void setUp_Stars_Background();
 void setUp_Spaceship_Background();
 void setUp_Planet_Background(struct Planets *Planet);
+void setUp_MAP(struct Planets *Planet);
 void setUpPaletteRGB();
 void setUpPaletteRB();
 void setUp_gameSub();
@@ -36,10 +39,12 @@ void update_Spaceship(Coordonnee* location, Coordonnee dir);
 void graphic_gameInit(Planet* Planet)
 {
 
-	setUpPaletteRGB();
+	//setUpPaletteRGB();
 
-	setUp_Stars_Background();
-	setUp_Planet_Background(Planet);
+	//setUp_Stars_Background();
+	//setUp_Planet_Background(Planet);
+
+	setUp_MAP(Planet);
 	setUp_Spaceship_Background();
 
 	setUp_gameSub();
@@ -51,7 +56,7 @@ void graphic_menuInit()
 	REG_DISPCNT = MODE_5_2D | DISPLAY_BG2_ACTIVE;
 	VRAM_A_CR = VRAM_ENABLE | VRAM_A_MAIN_BG;
 
-	BGCTRL[2] = BG_BMP_BASE(0) | BgSize_B8_256x256;
+	BGCTRL[2] = BG_BMP_BASE(0) |(u16)BgSize_B8_256x256;
 
     //Affine Marix Transformation
     REG_BG2PA = 256;
@@ -89,7 +94,7 @@ void setUp_Stars_Background()
 	REG_DISPCNT = MODE_5_2D | DISPLAY_BG2_ACTIVE | DISPLAY_BG0_ACTIVE;
 	VRAM_A_CR = VRAM_ENABLE | VRAM_A_MAIN_BG;
 
-	BGCTRL[2] = BG_BMP_BASE(0)|BgSize_B8_256x256;
+	BGCTRL[2] = BG_BMP_BASE(0)|(u16)BgSize_B8_256x256;
 
 
     //SetUp for stars
@@ -99,6 +104,11 @@ void setUp_Stars_Background()
     REG_BG2PD = 256;
 
     u8 *ptrGFX = (u8*)BG_GFX;
+
+    for(i=0; i<256*255; i++)
+    {
+    	ptrGFX[i] = 0;
+    }
 
     for(i=0;i<256*192;i++)
     {
@@ -191,6 +201,54 @@ void update_Spaceship(Coordonnee* location, Coordonnee dir)
     oamUpdate(&oamMain);
 }
 
+void setUp_MAP(struct Planets *Planet)
+{
+	REG_DISPCNT = MODE_5_2D | DISPLAY_BG3_ACTIVE;
+	VRAM_A_CR = VRAM_ENABLE | VRAM_A_MAIN_BG;
+
+	BGCTRL[3] = BG_BMP_BASE(0)|(u16)BgSize_B8_256x256;
+
+
+    //SetUp for stars
+    REG_BG3PA = 256;
+    REG_BG3PC = 0;
+    REG_BG3PB = 0;
+    REG_BG3PD = 256;
+
+    if(Planet[N_PLANET_MAX-1].mu)
+    {
+    	swiCopy(MAP4Pal, BG_PALETTE, MAP4PalLen);
+    	swiCopy(MAP4Bitmap, BG_GFX, MAP4BitmapLen);
+
+    }
+    /*else if (Planet[N_PLANET_MAX-2].mu)
+    {
+
+    }*/
+    else if (Planet[N_PLANET_MAX-3].mu)
+    {
+    	swiCopy(MAP3Pal, BG_PALETTE, MAP3PalLen);
+    	swiCopy(MAP3Bitmap, BG_GFX, MAP3BitmapLen);
+    }
+    else if (Planet[N_PLANET_MAX-4].mu)
+    {
+    	swiCopy(MAP2Pal, BG_PALETTE, MAP2PalLen);
+    	swiCopy(MAP2Bitmap, BG_GFX, MAP2BitmapLen);
+    }
+    else if (Planet[N_PLANET_MAX-5].mu)
+    {
+    	swiCopy(MAP1Pal, BG_PALETTE, MAP1PalLen);
+    	swiCopy(MAP1Bitmap, BG_GFX, MAP1BitmapLen);
+    }
+
+}
+
+void update_flamme(Coordonnee* location)
+{
+
+
+}
+
 void setUpPaletteRGB()
 {
 	int r,g,b,i=0;
@@ -259,7 +317,7 @@ void setUp_gameSub()
 
 	REG_DISPCNT_SUB = MODE_5_2D | DISPLAY_BG2_ACTIVE;
 
-    BGCTRL_SUB[2] = BG_BMP_BASE(0) | BgSize_B8_256x256;
+    BGCTRL_SUB[2] = BG_BMP_BASE(0) |(u16)BgSize_B8_256x256;
 
     //Affine Marix Transformation
     REG_BG2PA_SUB = 256;
@@ -276,7 +334,7 @@ void setUp_gameSub()
     	ptr_palette_sub[i] = ARGB16(1,(20*i)/256, 0, (31*i)/256);
     }
 
-    for(i=0; i<256*208 ; i++)
+    for(i=0; i<256*255 ; i++)
     {
     	ptr_GFX_sub[i] = 0;
     }

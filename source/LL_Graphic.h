@@ -19,6 +19,10 @@
 #include "mami.h"
 #include "planetBW.h"
 #include "menu_img.h"
+#include "MAP1.h"
+#include "MAP2.h"
+#include "MAP3.h"
+#include "MAP4.h"
 
 void graphic_gameInit(Planet* Planet);
 void graphic_gameUpdate(Coordonnee* location, Coordonnee dir);
