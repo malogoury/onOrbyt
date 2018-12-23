@@ -17,7 +17,8 @@
 #define	SIZE_SCREEN_X	256
 #define	SIZE_SCREEN_Y	192
 
-#define SIZE_SPRITE		32
+#define SIZE_SPRITE		64
+#define	PI				3.14159
 
 u16 *gfx_Planet = NULL;
 u16 *gfx_Spaceship = NULL;
@@ -30,6 +31,7 @@ void setUpPaletteRB();
 void setUp_gameSub();
 void drawLine(Coordonnee* fleche);
 void drawLineRotation(double angle, int size);
+void update_Spaceship(Coordonnee* location, Coordonnee dir);
 
 void graphic_gameInit(Planet* Planet)
 {
@@ -63,23 +65,8 @@ void graphic_menuInit()
 
 void graphic_gameUpdate(Coordonnee* location, Coordonnee dir)
 {
-    oamSet(&oamMain,
-    		0,
-    		location[0].x/N_POS - SIZE_SPRITE/2, location[0].y/N_POS - SIZE_SPRITE/2,
-    		0,
-    		0,
-    		SpriteSize_32x32,
-    		SpriteColorFormat_256Color,
-    		gfx_Spaceship,
-    		-1,
-    		false,
-    		false,
-    		false, false,
-    		false);
-    oamUpdate(&oamMain);
+	update_Spaceship(location, dir);
 
-    float theta=0.0;
-    theta=tan(dir.y/dir.x);
 }
 
 
@@ -174,6 +161,36 @@ void setUp_Spaceship_Background()
 
 }
 
+void update_Spaceship(Coordonnee* location, Coordonnee dir)
+{
+    float theta=0.0;
+    theta=( atan2(dir.y,dir.x) +PI/2)*32768/(2*PI);
+
+    s16 s = sinLerp(theta) >> 4;
+    s16 c = cosLerp(theta) >> 4;
+
+    oamMain.oamRotationMemory->hdx = c;
+    oamMain.oamRotationMemory->hdy = s;
+    oamMain.oamRotationMemory->vdx = -s;
+    oamMain.oamRotationMemory->vdy = c;
+
+    oamSet(&oamMain,
+    		0,
+    		location[0].x/N_POS - SIZE_SPRITE/2, location[0].y/N_POS - SIZE_SPRITE/2,
+    		0,
+    		0,
+    		SpriteSize_32x32,
+    		SpriteColorFormat_256Color,
+    		gfx_Spaceship,
+    		0,
+    		true,
+    		false,
+    		false, false,
+    		false);
+
+    oamUpdate(&oamMain);
+}
+
 void setUpPaletteRGB()
 {
 	int r,g,b,i=0;
@@ -264,119 +281,6 @@ void setUp_gameSub()
     	ptr_GFX_sub[i] = 0;
     }
 
-}
-
-
-void drawLine(Coordonnee* fleche)
-{
-	u8 *ptr_GFX_sub = (u8*)BG_GFX_SUB;
-
-	if((fleche[0].x)||(fleche[0].y))
-	{
-		return;
-	}
-	if(fleche[0].x<0 || fleche[0].x>256 || fleche[0].y<0 || fleche[0].y>192) //check boundaries
-	{
-		return;
-	}
-	if(fleche[1].x<0 || fleche[1].x>256 || fleche[1].y<0 || fleche[1].y>192) //check boundaries
-	{
-		return;
-	}
-
-	// Let's see all possibilities
-	int i= 0,j= 0;
-
-	if((fleche[0].y>fleche[1].y)) // 0 to pi radian
-	{
-		if((fleche[0].x<fleche[1].x)) // 0 to pi/2 radian
-		{
-			int slope = (fleche[0].y-fleche[1].y)/(fleche[1].x-fleche[0].x);
-			if(slope == 0)  		  // 0 to pi/4 radian
-			{
-				slope = (fleche[1].x-fleche[0].x)/(fleche[1].y-fleche[0].y);
-
-				j = fleche[0].y;
-				for(i = fleche[0].x; i < fleche[1].x; i++)
-				{
-					/*for(k=(-1)*thickness; k<thickness; k++)
-					{
-						ptr_GFX_sub[256*i + j +k] = 100 +k;
-					}*/
-
-					ptr_GFX_sub[256*j + i] = COLOR_ARROW;
-					//thickness++;
-					if( ((i-fleche[0].x)%slope)==0 )
-					{
-						j++;
-					}
-				}
-
-			}
-			else		// pi/4 to pi/2 radian
-			{
-				j = fleche[1].x;
-				for(i = fleche[1].y; i < fleche[0].y; i++)
-				{
-					/*for(k=(-1)*thickness; k<thickness; k++)
-					{
-						ptr_GFX_sub[256*i + j +k] = 100 +k;
-					}*/
-
-					ptr_GFX_sub[256*i + j] = COLOR_ARROW;
-					//thickness++;
-					if( (i-fleche[1].y)%slope == 0)
-					{
-						j--;
-					}
-				}
-			}
-		}
-		else	// pi/2 to pi radian
-		{
-			int slope = (fleche[0].x-fleche[1].x)/(fleche[0].y-fleche[1].y );
-			if(slope == 0)  		  // pi/2 to 3pi/4 radian
-			{
-				slope = (fleche[0].y-fleche[1].y)/(fleche[0].x-fleche[1].x);
-
-				j = fleche[1].x;
-				for(i = fleche[1].y; i < fleche[0].y; i++)
-				{
-					/*for(k=(-1)*thickness; k<thickness; k++)
-					{
-						ptr_GFX_sub[256*i + j +k] = 100 +k;
-					}*/
-
-					ptr_GFX_sub[256*i + j] = COLOR_ARROW;
-					//thickness++;
-					if( ((i-fleche[1].y)%slope)== 0 )
-					{
-						j++;
-					}
-				}
-
-			}
-			else		// pi/4 to pi/2 radian
-			{
-				j = fleche[1].x;
-				for(i = fleche[1].y; i < fleche[0].y; i++)
-				{
-					/*for(k=(-1)*thickness; k<thickness; k++)
-					{
-						ptr_GFX_sub[256*i + j +k] = 100 +k;
-					}*/
-
-					ptr_GFX_sub[256*i + j] = COLOR_ARROW;
-					//thickness++;
-					if( (i-fleche[1].y)%slope == 0)
-					{
-						j--;
-					}
-				}
-			}
-
-		}
-	}
 }
 
 
