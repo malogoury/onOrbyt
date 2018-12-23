@@ -8,7 +8,7 @@
 #ifndef ONORBYT_DEFINES_H_
 #define ONORBYT_DEFINES_H_
 
-#define NB_POS			10
+#define NB_POS			200
 #define NB_PLANETS		5
 #define X_INIT 			256/2		// pix
 #define Y_INIT			50			// pix

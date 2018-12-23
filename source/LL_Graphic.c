@@ -35,6 +35,7 @@ void setUp_gameSub();
 void drawLine(Coordonnee* fleche);
 void drawLineRotation(double angle, int size);
 void update_Spaceship(Coordonnee* location, Coordonnee dir);
+void update_flamme(Coordonnee* location);
 
 void graphic_gameInit(Planet* Planet)
 {
@@ -71,6 +72,7 @@ void graphic_menuInit()
 void graphic_gameUpdate(Coordonnee* location, Coordonnee dir)
 {
 	update_Spaceship(location, dir);
+	update_flamme(location);
 
 }
 
@@ -203,10 +205,11 @@ void update_Spaceship(Coordonnee* location, Coordonnee dir)
 
 void setUp_MAP(struct Planets *Planet)
 {
-	REG_DISPCNT = MODE_5_2D | DISPLAY_BG3_ACTIVE;
+	REG_DISPCNT = MODE_5_2D | DISPLAY_BG3_ACTIVE| DISPLAY_BG2_ACTIVE;
 	VRAM_A_CR = VRAM_ENABLE | VRAM_A_MAIN_BG;
 
 	BGCTRL[3] = BG_BMP_BASE(0)|(u16)BgSize_B8_256x256;
+	BGCTRL[2] = BG_BMP_BASE(6)|(u16)BgSize_B8_256x256;
 
 
     //SetUp for stars
@@ -245,6 +248,25 @@ void setUp_MAP(struct Planets *Planet)
 
 void update_flamme(Coordonnee* location)
 {
+	int i;
+	u8 *ptr_GFX = (u8*)BG_GFX;
+
+	/*for(i=0; i<256; i++)
+	{
+		ptr_GFX[256*5 +i] = i;
+		ptr_GFX[256*6 +i] = i;
+		ptr_GFX[256*7 +i] = i;
+		ptr_GFX[256*8 +i] = i;
+		ptr_GFX[256*9 +i] = i;
+		ptr_GFX[256*10 +i] = i;
+		ptr_GFX[256*11 +i] = i;
+		ptr_GFX[256*12 +i] = i;
+	}*/
+
+	for(i=0; i< NB_POS; i++)
+	{
+		ptr_GFX[ (location[i].y/N_POS)*SIZE_SCREEN_X + (location[i].x/N_POS)] = i*256/NB_POS;
+	}
 
 
 }
