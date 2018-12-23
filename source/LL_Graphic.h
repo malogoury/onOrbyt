@@ -13,10 +13,7 @@
 
 #include "onOrbyt/Map.h"
 #include "stars_background.h"
-#include "earth2.h"
-#include "jupiter.h"
 #include "spaceship.h"
-#include "mami.h"
 #include "planetBW.h"
 #include "menu_img.h"
 #include "MAP1.h"

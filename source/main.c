@@ -13,7 +13,6 @@ int main(void) {
 	// Initialisations
 
     //consoleDemoInit();
-    //printf("\nHello World!\n");
 
     timer_init();
     while(1)
