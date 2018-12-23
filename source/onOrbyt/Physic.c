@@ -30,21 +30,6 @@ void physic_init(Spacecraft* spacecraft)
 
 void physic_updatePos(Spacecraft* spacecraft, Planet* planets)
 {
-
-	/////////////////////////// diagonal flow ////////////////////////////////////////
-//	Coordonnee new_pos = {0,0};
-//	new_pos.x = (spacecraft->pos[0].x+500)%(NPIX_X*1000);
-//	new_pos.y = (spacecraft->pos[0].y+500)%(NPIX_Y*1000);
-//	addBufferPos(spacecraft->pos, new_pos, NB_POS);
-//	/////////////////////////// constant velocity ////////////////////////////////////////
-//	Coordonnee new_pos = {0,0};
-//	new_pos.x = (spacecraft->pos[0].x+spacecraft->speed.x*dT)%(NPIX_X*1000);
-//	new_pos.y = (spacecraft->pos[0].y+spacecraft->speed.y*dT)%(NPIX_Y*1000);
-//	addBufferPos(spacecraft->pos, new_pos, NB_POS);
-
-
-	/////////////////////////// integer implementation ////////////////////////////////////////
-
 	Coordonnee acc = {0,0}, new_pos = {0,0};
 	Coordonnee tmp_acc={0,0};
 	int i;
@@ -57,13 +42,10 @@ void physic_updatePos(Spacecraft* spacecraft, Planet* planets)
 			acc.y+=tmp_acc.y;
 		}
 	}
-	//printf("acc   = %d %d \n", acc.x, acc.y);
 	new_pos = calc_pos(spacecraft->pos[0],spacecraft->speed,acc);
 	addBufferPos(spacecraft->pos,new_pos,NB_POS);
-	//printf("pos   = %d %d \n",spacecraft->pos[0].x,spacecraft->pos[0].y);
 	spacecraft->speed.x+=acc.x*dT/N_ACC;
 	spacecraft->speed.y+=acc.y*dT/N_ACC;
-	//printf("speed = %d %d \n",spacecraft->speed.x,spacecraft->speed.y);
 }
 
 Coordonnee calc_pos(Coordonnee posSp, Coordonnee velSp, Coordonnee acc)
@@ -71,6 +53,15 @@ Coordonnee calc_pos(Coordonnee posSp, Coordonnee velSp, Coordonnee acc)
 	Coordonnee new_pos={0,0};
 	new_pos.x=(posSp.x)+(velSp.x*dT)+(acc.x*dT*dT/(2*N_ACC));
 	new_pos.y=(posSp.y)+(velSp.y*dT)+(acc.y*dT*dT/(2*N_ACC));
+
+	if(new_pos.x<0)
+		new_pos.x=NPIX_X*N_POS-1;
+	else if(new_pos.x>=NPIX_X*N_POS)
+		new_pos.x=0;
+	if(new_pos.y<0)
+		new_pos.y=NPIX_Y*N_POS-1;
+	else if(new_pos.y>=NPIX_Y*N_POS)
+		new_pos.y=0;
 	return new_pos;
 }
 Coordonnee calc_acc(Coordonnee posPl, Coordonnee posSp, int mu)
@@ -102,4 +93,11 @@ Coordonnee physic_velocityInit(Coordonnee vect)
 	velocity.x = vect.x*N_VEL/RATIO_VEL_INIT;
 	velocity.y = vect.y*N_VEL/RATIO_VEL_INIT;
 	return velocity;
+}
+
+int physic_dist(Coordonnee sc, Coordonnee pl)
+{
+	int dist2=0;
+	dist2=(pl.x-sc.x/N_POS)*(pl.x-sc.x/N_POS)+(pl.y-sc.y/N_POS)*(pl.y-sc.y/N_POS);
+	return dist2;
 }

@@ -18,6 +18,7 @@ Coordonnee arrow[2]={{0,0},{0,0}};
 
 void game_main();
 void game_reset();
+void game_GameOver();
 
 void game_init(Maps map)
 {
@@ -34,9 +35,25 @@ void game_reset()
 void game_update(void)
 {
 	if(state_game==PLAY_game)
+	{
 		physic_updatePos(&orion, planets);
+		game_GameOver();
+	}
 }
 
+void game_GameOver()
+{
+	int i,dist2=0;
+	for(i=0;i<NB_PLANETS;i++)
+	{
+		dist2=physic_dist(orion.pos[0],planets[i].pos);
+		if(dist2<=planets[i].radius*planets[i].radius)
+		{
+			state_game=GAME_OVER_game;
+			break;
+		}
+	}
+}
 void game_displayUpdate(void)
 {
 
@@ -51,10 +68,11 @@ void game_main()
 	touchPosition touch;
 	while(1)
 	{
+		if(state_game==GAME_OVER_game)
+			game_reset();
 		scanKeys();
 		if(keysDown() & KEY_TOUCH)
 		{
-			printf("hello %d\n",(int)state_arrow);
 			touchRead(&touch);
 			if((touch.px || touch.py) && state_arrow==INIT_sub)
 			{
@@ -92,9 +110,7 @@ void game_main()
 		else if(keysDown() & KEY_DOWN)
 		{
 			if(state_game == PLAY_game)
-			{
 				game_reset();
-			}
 		}
 		if(keysDown() & KEY_START)
 		{

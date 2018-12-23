@@ -18,4 +18,5 @@ struct Spacecrafts
 void physic_init(Spacecraft* spacecraft);
 void physic_updatePos(Spacecraft* spacecraft, Planet* planets);
 Coordonnee physic_velocityInit(Coordonnee vect);
+int physic_dist(Coordonnee p0, Coordonnee p1);
 
