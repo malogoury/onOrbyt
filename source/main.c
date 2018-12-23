@@ -16,7 +16,8 @@ int main(void) {
     printf("\nHello World!\n");
 
     timer_init();
-    gameplay_init();
+    while(1)
+    	gameplay_init();
 
 //    // Main infinite loop
 //    while(1){

@@ -96,6 +96,11 @@ void game_main()
 				game_reset();
 			}
 		}
+		if(keysDown() & KEY_START)
+		{
+			state_game = RESET_game;
+			break;
+		}
 		game_displayUpdate();
 		swiWaitForVBlank();
 	}
