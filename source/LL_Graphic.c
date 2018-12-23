@@ -143,7 +143,7 @@ void setUp_Planet_Background(struct Planets *Planet)
 	j = 0;
 
 	// Display planets
-	while(Planet[i].pos.x && Planet[i].pos.y)
+	while( (Planet[i].pos.x) || (Planet[i].pos.y) )
 	{
 	    for(row = (Planet[i].pos.y)/8 -2; row< (Planet[i].pos.y)/8 +2; row++)
 	    {
@@ -155,6 +155,7 @@ void setUp_Planet_Background(struct Planets *Planet)
 	    	}
 	    }
 	    i++;
+	    j= 0;
 	}
 
 }
