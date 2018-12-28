@@ -17,6 +17,7 @@ void menu_main(Maps* map);
 void menu_init(Maps* map)
 {
 	graphic_menuInit();
+	sound_initMenu();
 	state_menu=INIT_menu;
 	menu_main(map);
 }

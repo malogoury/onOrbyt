@@ -299,11 +299,6 @@ void setUpPaletteRGB()
 	}
 	ptr_palette[255] = ARGB16(1, 10, 10, 10);
 
-	for(i=0; i<256; i++)
-	{
-		//printf("palette n%d = %d  %d\n",i,ptr_palette[i],j);
-	}
-
 }
 
 void setUpPaletteRB()

@@ -12,6 +12,7 @@
 #endif /* MENU_H_ */
 
 #include "../LL_Graphic.h"
+#include "../LL_Sound.h"
 #include "Map.h"
 
 typedef enum FSM_menu {IDLE_menu,INIT_menu,SELECT_menu,PLAY_menu,
