@@ -9,6 +9,7 @@
 #pragma once
 
 #include "../LL_Graphic.h"
+#include "../LL_Sound.h"
 #include "Physic.h"
 #include "onOrbyt_defines.h"
 

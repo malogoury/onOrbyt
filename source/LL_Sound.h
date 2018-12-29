@@ -15,5 +15,9 @@
 #include <maxmod9.h>
 #include "soundbank.h"
 #include "soundbank_bin.h"
+#include "onOrbyt/Map.h"
 
-void sound_initMenu();
+void sound_menuInit();
+void sound_gameInit();
+void sound_gameOver();
+void sound_gameUpdate(Coordonnee speed);

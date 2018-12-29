@@ -23,6 +23,7 @@ void game_GameOver();
 void game_init(Maps map)
 {
 	map_init(planets, map);
+	sound_gameInit();
 	game_reset();
 	game_main();
 }
@@ -34,10 +35,21 @@ void game_reset()
 }
 void game_update(void)
 {
+	static int counter = 0;
+
 	if(state_game==PLAY_game)
 	{
 		physic_updatePos(&orion, planets);
 		game_GameOver();
+
+
+		counter++;
+		if(counter > 10)
+		{
+			sound_gameUpdate(orion.speed);
+			counter = 0;
+		}
+
 	}
 }
 
@@ -69,7 +81,10 @@ void game_main()
 	while(1)
 	{
 		if(state_game==GAME_OVER_game)
+		{
+			sound_gameOver();
 			game_reset();
+		}
 		scanKeys();
 		if(keysDown() & KEY_TOUCH)
 		{

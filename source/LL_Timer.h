@@ -9,6 +9,7 @@
 #define LL_TIMER_H_
 
 #include "onOrbyt/onOrbyt_Gameplay.h"
+#include "LL_Sound.h"
 
 void timer_init(void);
 

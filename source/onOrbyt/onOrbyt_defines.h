@@ -17,9 +17,9 @@
 #define RATIO_VEL_INIT	2			//
 #define dT				10			// ms
 
-#define R_SMALL			15			// pix
-#define R_MEDIUM		25			// pix
-#define R_LARGE			35			// pix
+#define R_SMALL			12			// pix
+#define R_MEDIUM		22			// pix
+#define R_LARGE			32			// pix
 
 #define NPIX_X			256
 #define	NPIX_Y			192

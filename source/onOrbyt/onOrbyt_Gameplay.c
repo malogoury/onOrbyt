@@ -34,8 +34,10 @@ void gameplay_init(void)
 void gameplay_update(void)
 {
 	if(state==MENU);
-	else if (state == GAME);
+	else if (state == GAME)
+	{
 		game_update();
+	}
 }
 
 void gameplay_displayUpdate(void)
