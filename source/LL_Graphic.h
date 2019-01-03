@@ -16,6 +16,7 @@
 #include "spaceship.h"
 #include "planetBW.h"
 #include "menu_img.h"
+#include "menu_lower.h"
 #include "MAP1.h"
 #include "MAP2.h"
 #include "MAP3.h"

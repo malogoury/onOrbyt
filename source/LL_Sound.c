@@ -46,7 +46,7 @@ void sound_gameUpdate(Coordonnee speed)
 	int speedTot = sqrt(speed.x*speed.x + speed.y*speed.y);
 
 	sound_motor = mmEffect(SFX_WIND);
-	mmEffectRate(sound_motor, 1024 + speedTot/100);
+	mmEffectRate(sound_motor, 1024 + speedTot/10);
 	mmEffectVolume(sound_motor, 70);
 
 }

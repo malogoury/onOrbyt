@@ -36,6 +36,8 @@ void drawLine(Coordonnee* fleche);
 void drawLineRotation(double angle, int size);
 void update_Spaceship(Coordonnee* location, Coordonnee dir);
 void update_flamme(Coordonnee* location);
+void setUp_UpperMenu();
+void setUp_LowerMenu();
 
 void graphic_gameInit(Planet* Planet)
 {
@@ -54,19 +56,8 @@ void graphic_gameInit(Planet* Planet)
 
 void graphic_menuInit()
 {
-	REG_DISPCNT = MODE_5_2D | DISPLAY_BG2_ACTIVE;
-	VRAM_A_CR = VRAM_ENABLE | VRAM_A_MAIN_BG;
-
-	BGCTRL[2] = BG_BMP_BASE(0) |(u16)BgSize_B8_256x256;
-
-    //Affine Marix Transformation
-    REG_BG2PA = 256;
-    REG_BG2PC = 0;
-    REG_BG2PB =  0;
-    REG_BG2PD = 256;
-
-	swiCopy(menu_imgPal, BG_PALETTE, menu_imgPalLen);
-	swiCopy(menu_imgBitmap, BG_GFX, menu_imgBitmapLen);
+	setUp_UpperMenu();
+	setUp_LowerMenu();
 }
 
 void graphic_gameUpdate(Coordonnee* location, Coordonnee dir)
@@ -83,10 +74,46 @@ void graphic_gameUpdateSub(Coordonnee p0, Coordonnee p1)
 	int size = sqrt((p0.x-p1.x)*(p0.x-p1.x) + (p0.y-p1.y)*(p0.y-p1.y));
 	drawLineRotation(angle, size);
 
+}
 
+void setUp_UpperMenu()
+{
+	VRAM_A_CR = VRAM_ENABLE | VRAM_A_MAIN_BG;
 
+	REG_DISPCNT = MODE_5_2D | DISPLAY_BG2_ACTIVE;
+
+	BGCTRL[2] = BG_BMP_BASE(0) |(u16)BgSize_B8_256x256;
+
+    //Affine Matrix Transformation
+    REG_BG2PA = 256;
+    REG_BG2PC = 0;
+    REG_BG2PB =  0;
+    REG_BG2PD = 256;
+
+	swiCopy(menu_imgPal, BG_PALETTE, menu_imgPalLen);
+	swiCopy(menu_imgBitmap, BG_GFX, menu_imgBitmapLen/2);
 
 }
+
+
+void setUp_LowerMenu()
+{
+	REG_DISPCNT_SUB = MODE_5_2D | DISPLAY_BG2_ACTIVE;
+
+	VRAM_C_CR = VRAM_ENABLE| VRAM_C_SUB_BG;
+
+    BGCTRL_SUB[2] = BG_BMP_BASE(16) |(u16)BgSize_B8_256x256;
+
+    //Affine Matrix Transformation
+    REG_BG2PA_SUB = 256;
+    REG_BG2PC_SUB = 0;
+    REG_BG2PB_SUB = 0;
+    REG_BG2PD_SUB = 256;
+
+    swiCopy(menu_lowerPal, BG_PALETTE_SUB, menu_lowerPalLen);
+    swiCopy(menu_lowerBitmap, BG_BMP_RAM_SUB(16), menu_lowerBitmapLen/2);
+}
+
 
 
 void setUp_Stars_Background()
@@ -162,7 +189,7 @@ void setUp_Planet_Background(struct Planets *Planet)
 void setUp_Spaceship_Background()
 {
 
-	VRAM_B_CR = VRAM_ENABLE | VRAM_B_MAIN_SPRITE_0x06400000;
+	VRAM_E_CR = VRAM_ENABLE | VRAM_E_MAIN_SPRITE;
 	oamInit(&oamMain, SpriteMapping_1D_32, false);
 
 	gfx_Spaceship = oamAllocateGfx(&oamMain, SpriteSize_32x32, SpriteColorFormat_256Color);
@@ -206,13 +233,16 @@ void update_Spaceship(Coordonnee* location, Coordonnee dir)
 void setUp_MAP(struct Planets *Planet)
 {
 	REG_DISPCNT = MODE_5_2D | DISPLAY_BG3_ACTIVE| DISPLAY_BG2_ACTIVE;
+
 	VRAM_A_CR = VRAM_ENABLE | VRAM_A_MAIN_BG;
+	VRAM_B_CR = VRAM_ENABLE | VRAM_B_MAIN_BG;
 
-	BGCTRL[3] = BG_BMP_BASE(0)|(u16)BgSize_B8_256x256;
-	BGCTRL[2] = BG_BMP_BASE(6)|(u16)BgSize_B8_256x256;
+	BGCTRL[3] = BG_BMP_BASE(0)|(u16)BgSize_B8_256x256; // memory for the map
+	BGCTRL[2] = BG_BMP_BASE(8)|(u16)BgSize_B16_256x256; // memory for the flame
 
 
-    //SetUp for stars
+
+    //SetUp for map
     REG_BG3PA = 256;
     REG_BG3PC = 0;
     REG_BG3PB = 0;
@@ -221,7 +251,7 @@ void setUp_MAP(struct Planets *Planet)
     if(Planet[N_PLANET_MAX-1].mu)
     {
     	swiCopy(MAP4Pal, BG_PALETTE, MAP4PalLen);
-    	swiCopy(MAP4Bitmap, BG_GFX, MAP4BitmapLen);
+    	swiCopy(MAP4Bitmap, BG_GFX, MAP4BitmapLen/2);
 
     }
     /*else if (Planet[N_PLANET_MAX-2].mu)
@@ -230,8 +260,8 @@ void setUp_MAP(struct Planets *Planet)
     }*/
     else if (Planet[N_PLANET_MAX-3].mu)
     {
-    	swiCopy(MAP3Pal, BG_PALETTE, MAP3PalLen);
-    	swiCopy(MAP3Bitmap, BG_GFX, MAP3BitmapLen);
+    	swiCopy(MAP3Pal, BG_PALETTE, MAP3PalLen/2);
+    	swiCopy(MAP3Bitmap, BG_GFX, MAP3BitmapLen/2);
     }
     else if (Planet[N_PLANET_MAX-4].mu)
     {
@@ -244,97 +274,42 @@ void setUp_MAP(struct Planets *Planet)
     	swiCopy(MAP1Bitmap, BG_GFX, MAP1BitmapLen);
     }
 
+	// clear previous flame
+	int i = 0;
+	u16 *ptr_GFX = BG_BMP_RAM(8);
+	for(i=0; i<256*192; i++)
+	{
+		ptr_GFX[i] = ARGB16(0,0,0,0);
+	}
+
 }
 
 void update_flamme(Coordonnee* location)
 {
 	int i;
-	u8 *ptr_GFX = (u8*)BG_GFX;
+	//u8 *ptr_GFX = (u8*)BG_GFX;
 
-	/*for(i=0; i<256; i++)
-	{
-		ptr_GFX[256*5 +i] = i;
-		ptr_GFX[256*6 +i] = i;
-		ptr_GFX[256*7 +i] = i;
-		ptr_GFX[256*8 +i] = i;
-		ptr_GFX[256*9 +i] = i;
-		ptr_GFX[256*10 +i] = i;
-		ptr_GFX[256*11 +i] = i;
-		ptr_GFX[256*12 +i] = i;
-	}*/
+	u16 *ptr_GFX = BG_BMP_RAM(8);
 
-	for(i=0; i< NB_POS; i++)
+	for(i=0; i< NB_POS-1; i++)
 	{
-		ptr_GFX[ (location[i].y/N_POS)*SIZE_SCREEN_X + (location[i].x/N_POS)] = i*256/NB_POS;
+		//ptr_GFX[ (location[i].y/N_POS)*SIZE_SCREEN_X + (location[i].x/N_POS)] = i*256/NB_POS;
+		ptr_GFX[ (location[i].y/N_POS)*SIZE_SCREEN_X + (location[i].x/N_POS)] = ARGB16(1, 31-i*31/NB_POS, 10-i*10/NB_POS, 7);
 	}
-
+	ptr_GFX[ (location[i].y/N_POS)*SIZE_SCREEN_X + (location[i].x/N_POS)] = ARGB16(1,5,2,2);
 
 }
 
-void setUpPaletteRGB()
-{
-	int r,g,b,i=0;
-	u16 *ptr_palette = BG_PALETTE;
-
-
-	for(r=0; r<6;r++)
-	{
-		for(g=0; g<6;g++)
-		{
-			for(b=0; b<7;b++)
-			{
-
-				ptr_palette[i] = ARGB16(1,(31/5)*r,(31/5)*g,(31/6)*b);
-				i++;
-
-			}
-		}
-	}
-
-	int j = i;
-	while(i<255)
-	{
-		ptr_palette[i] = ARGB16(1,(i-j)*7/(255-j), (i-j)*7/(255-j), (i-j)*7/(255-j) );
-		i++;
-	}
-	ptr_palette[255] = ARGB16(1, 10, 10, 10);
-
-}
-
-void setUpPaletteRB()
-{
-	int r,b,i=0;
-	u16 *ptr_palette = BG_PALETTE;
-
-
-	for(r=0; r<16;r++)
-	{
-		for(b=0; b<16;b++)
-		{
-			if(i<255)
-			{
-				ptr_palette[i] = ARGB16(1, (31/16)*r,0,(31/16)*b);
-			}
-			i++;
-		}
-	}
-
-	int j = i;
-	while(i<=255)
-	{
-		ptr_palette[i] = ARGB16(1,(i-j)*31/(255-j), (i-j)*31/(255-j), (i-j)*31/(255-j) );
-		i++;
-	}
-
-}
 
 void setUp_gameSub()
 {
 	VRAM_C_CR = VRAM_ENABLE| VRAM_C_SUB_BG;
 
+	BGCTRL_SUB[2] = BG_BMP_BASE(16) |(u16)BgSize_B16_256x256;
+
 	REG_DISPCNT_SUB = MODE_5_2D | DISPLAY_BG2_ACTIVE;
 
-    BGCTRL_SUB[2] = BG_BMP_BASE(0) |(u16)BgSize_B8_256x256;
+
 
     //Affine Marix Transformation
     REG_BG2PA_SUB = 256;
@@ -343,17 +318,18 @@ void setUp_gameSub()
     REG_BG2PD_SUB = 256;
 
     u16 i;
-    u16 *ptr_palette_sub = BG_PALETTE_SUB;
-    u8 *ptr_GFX_sub = (u8*)BG_GFX_SUB;
+    //u16 *ptr_palette_sub = BG_PALETTE_SUB;
+    //u8 *ptr_GFX_sub = (u8*)BG_BMP_RAM_SUB(16);
+    u16 *ptr_GFX_sub = BG_BMP_RAM_SUB(16);
 
-    for(i=0; i<255; i++)
+    /*for(i=0; i<255; i++)
     {
     	ptr_palette_sub[i] = ARGB16(1,(20*i)/256, 0, (31*i)/256);
-    }
+    }*/
 
     for(i=0; i<256*255 ; i++)
     {
-    	ptr_GFX_sub[i] = 0;
+    	ptr_GFX_sub[i] = ARGB16(1,0,0,0);
     }
 
 }
@@ -366,7 +342,8 @@ void drawLineRotation(double angle, int size)
 		size = SIZE_SCREEN_Y;
 	}
 
-	u8 *ptr_GFX_sub = (u8*)BG_GFX_SUB;
+	//u8 *ptr_GFX_sub = (u8*)BG_BMP_RAM_SUB(16);
+	u16 *ptr_GFX_sub = BG_BMP_RAM_SUB(16);
 	int row, column, t, thickness =1;
 
 	for(row=0; row<SIZE_SCREEN_Y; row++)
@@ -374,14 +351,14 @@ void drawLineRotation(double angle, int size)
 		for(column = 0; column < SIZE_SCREEN_X; column++)
 		{
 
-			ptr_GFX_sub[row*256 + column] = 0;
+			ptr_GFX_sub[row*256 + column] = ARGB16(1,0,0,0);
 		}
 
 		if( (row<SIZE_SCREEN_Y/2 +size/2) && (row>SIZE_SCREEN_Y/2 -size/2) )
 		{
 			for(t= -thickness/2; t< thickness/2; t++)
 			{
-				ptr_GFX_sub[row*SIZE_SCREEN_X + SIZE_SCREEN_X/2 + t] = COLOR_ARROW ;
+				ptr_GFX_sub[row*SIZE_SCREEN_X + SIZE_SCREEN_X/2 + t] = ARGB16(1,31-2*abs(t)*31/thickness,10-2*abs(t)*10/thickness, 7) ;
 			}
 
 			if( ((row-SIZE_SCREEN_Y/2))%(SLOPE_ARROW) == 0 )
