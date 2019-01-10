@@ -25,16 +25,13 @@ u16 *gfx_Spaceship = NULL;
 
 
 void setUp_Spaceship_Background();
-void setUp_MAP(struct Planets *Planet);
-void setUpPaletteRGB();
-void setUpPaletteRB();
+void setUp_MAP(struct Planets *Planet);;
 void setUp_gameSub();
-void drawLine(Coordonnee* fleche);
-void drawLineRotation(double angle, int size);
-void update_Spaceship(Coordonnee* location, Coordonnee dir);
-void update_flamme(Coordonnee* location);
 void setUp_UpperMenu();
 void setUp_LowerMenu();
+void update_Spaceship(Coordonnee* location, Coordonnee dir);
+void update_flamme(Coordonnee* location);
+void drawLineRotation(double angle, int size);
 
 
 
@@ -351,7 +348,6 @@ void drawLineRotation(double angle, int size)
     REG_BG2PD_SUB = cos(angle)*256;
 
     irqEnable(IRQ_TIMER0);
-
 }
 
 

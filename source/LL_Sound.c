@@ -10,44 +10,37 @@
 #include "LL_Sound.h"
 #include <math.h>
 
-mm_sfxhand sound_motor;
-
+/**
+ * Load the menu's music and start playing it
+ *
+ */
 void sound_menuInit()
 {
 	mmInitDefaultMem((mm_addr)soundbank_bin);
 
-
 	mmLoad(MOD_69213_SCZ);
 	mmStart(MOD_69213_SCZ, MM_PLAY_LOOP);
-
 }
 
+/**
+ * Load the game's music and start playing it
+ * Load explosion effect
+ *
+ */
 void sound_gameInit()
 {
-	//mmStop();
-
 	mmLoad(MOD_SPACEEXPLORATION_GAME);
 	mmLoadEffect(SFX_EXPLOSION_X);
-	mmLoadEffect(SFX_WIND);
 
 	mmStart(MOD_SPACEEXPLORATION_GAME, MM_PLAY_LOOP);
-
-	sound_motor = mmEffect(SFX_WIND);
-	mmEffectVolume(sound_motor, 100);
 }
 
+/**
+ * Play explosion effect, called when spaceship crashes into a planet
+ *
+ */
 void sound_gameOver()
 {
 	mmEffect(SFX_EXPLOSION_X);
-}
-
-void sound_gameUpdate(Coordonnee speed)
-{
-	int speedTot = sqrt(speed.x*speed.x + speed.y*speed.y);
-
-	sound_motor = mmEffect(SFX_WIND);
-	mmEffectRate(sound_motor, 1024 + speedTot/10);
-	mmEffectVolume(sound_motor, 70);
-
 }
 

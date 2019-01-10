@@ -12,9 +12,7 @@
 #endif /* LL_GRAPHIC_H_ */
 
 #include "onOrbyt/Map.h"
-#include "stars_background.h"
 #include "spaceship.h"
-#include "planetBW.h"
 #include "menu_img.h"
 #include "menu_lower.h"
 #include "MAP1.h"
@@ -25,5 +23,4 @@
 void graphic_gameInit(Planet* Planet);
 void graphic_gameUpdate(Coordonnee* location, Coordonnee dir);
 void graphic_gameUpdateSub(Coordonnee p0, Coordonnee p1);
-
 void graphic_menuInit();

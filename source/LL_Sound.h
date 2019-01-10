@@ -20,4 +20,3 @@
 void sound_menuInit();
 void sound_gameInit();
 void sound_gameOver();
-void sound_gameUpdate(Coordonnee speed);
