@@ -132,7 +132,11 @@ void game_main()
 			state_game = RESET_game;
 			break;
 		}
-		game_displayUpdate();
 		swiWaitForVBlank();
+		game_displayUpdate();
+
+
 	}
 }
+
+

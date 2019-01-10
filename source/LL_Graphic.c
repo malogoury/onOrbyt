@@ -10,24 +10,21 @@
 #include <nds.h>
 #include <math.h>
 #include "LL_Graphic.h"
-#define	OFFSET_PALETTE	0
-#define	SLOP_PALETTE	10
-#define COLOR_ARROW		200
+
 #define	SLOPE_ARROW		5
 #define	SIZE_SCREEN_X	256
 #define	SIZE_SCREEN_Y	192
+#define NB_UPDATE		3
 
 #define SIZE_SPRITE		64
 #define	PI				3.14159
 
 #define N_PLANET_MAX	5
 
-u16 *gfx_Planet = NULL;
 u16 *gfx_Spaceship = NULL;
 
-void setUp_Stars_Background();
+
 void setUp_Spaceship_Background();
-void setUp_Planet_Background(struct Planets *Planet);
 void setUp_MAP(struct Planets *Planet);
 void setUpPaletteRGB();
 void setUpPaletteRB();
@@ -39,43 +36,66 @@ void update_flamme(Coordonnee* location);
 void setUp_UpperMenu();
 void setUp_LowerMenu();
 
+
+
+/**
+ * Setup upper and lower graphic for the game phase
+ *
+ */
 void graphic_gameInit(Planet* Planet)
 {
-
-	//setUpPaletteRGB();
-
-	//setUp_Stars_Background();
-	//setUp_Planet_Background(Planet);
-
 	setUp_MAP(Planet);
+
 	setUp_Spaceship_Background();
 
 	setUp_gameSub();
-
 }
 
+/**
+ * Setup upper and lower graphic for the menu phase
+ *
+ */
 void graphic_menuInit()
 {
 	setUp_UpperMenu();
 	setUp_LowerMenu();
 }
 
+
+/**
+ * Update the upper graphic (Spaceship and its flame)
+ *
+ */
 void graphic_gameUpdate(Coordonnee* location, Coordonnee dir)
 {
 	update_Spaceship(location, dir);
 	update_flamme(location);
-
 }
 
-
+/**
+ * Update the lower graphic
+ *
+ */
 void graphic_gameUpdateSub(Coordonnee p0, Coordonnee p1)
 {
-	double angle = atan2( (p1.x-p0.x),(p1.y-p0.y) );
-	int size = sqrt((p0.x-p1.x)*(p0.x-p1.x) + (p0.y-p1.y)*(p0.y-p1.y));
-	drawLineRotation(angle, size);
+	static int counter = 0;
+
+	if (counter > NB_UPDATE) // update the arrow only once in a while
+	{
+		double angle = atan2( (p1.x-p0.x),(p1.y-p0.y) ); // angle of the arrow
+		int size = sqrt((p0.x-p1.x)*(p0.x-p1.x) + (p0.y-p1.y)*(p0.y-p1.y)); // length of the arrow
+
+		drawLineRotation(angle, size);
+		counter = 0;
+	}
+	counter ++;
 
 }
 
+/**
+ * Set up memory bank and control register for upper menu image
+ *
+ */
 void setUp_UpperMenu()
 {
 	VRAM_A_CR = VRAM_ENABLE | VRAM_A_MAIN_BG;
@@ -84,7 +104,7 @@ void setUp_UpperMenu()
 
 	BGCTRL[2] = BG_BMP_BASE(0) |(u16)BgSize_B8_256x256;
 
-    //Affine Matrix Transformation
+    // Affine Matrix Transformation
     REG_BG2PA = 256;
     REG_BG2PC = 0;
     REG_BG2PB =  0;
@@ -92,10 +112,12 @@ void setUp_UpperMenu()
 
 	swiCopy(menu_imgPal, BG_PALETTE, menu_imgPalLen);
 	swiCopy(menu_imgBitmap, BG_GFX, menu_imgBitmapLen/2);
-
 }
 
-
+/**
+ * Set up memory bank and control register for lower menu image
+ *
+ */
 void setUp_LowerMenu()
 {
 	REG_DISPCNT_SUB = MODE_5_2D | DISPLAY_BG2_ACTIVE;
@@ -114,105 +136,40 @@ void setUp_LowerMenu()
     swiCopy(menu_lowerBitmap, BG_BMP_RAM_SUB(16), menu_lowerBitmapLen/2);
 }
 
-
-
-void setUp_Stars_Background()
-{
-	u16 i =0;
-
-	REG_DISPCNT = MODE_5_2D | DISPLAY_BG2_ACTIVE | DISPLAY_BG0_ACTIVE;
-	VRAM_A_CR = VRAM_ENABLE | VRAM_A_MAIN_BG;
-
-	BGCTRL[2] = BG_BMP_BASE(0)|(u16)BgSize_B8_256x256;
-
-
-    //SetUp for stars
-    REG_BG2PA = 256;
-    REG_BG2PC = 0;
-    REG_BG2PB = 0;
-    REG_BG2PD = 256;
-
-    u8 *ptrGFX = (u8*)BG_GFX;
-
-    for(i=0; i<256*255; i++)
-    {
-    	ptrGFX[i] = 0;
-    }
-
-    for(i=0;i<256*192;i++)
-    {
-    	ptrGFX[i] = *( (u8*)stars_backgroundBitmap + i) + 252;
-    }
-
-
-}
-
-void setUp_Planet_Background(struct Planets *Planet)
-{
-	int row, column;
-
-	BGCTRL[0] = BG_COLOR_256 | BG_MAP_BASE(26) | BG_TILE_BASE(4) | BG_32x32;
-	swiCopy(planetBWTiles, (u32*)BG_TILE_RAM(4), planetBWTilesLen/2);
-
-	u16 i = 0, j=0;
-
-	// Clear memory from menu image
-	for(i=0; i<32; i++)
-	{
-		for(j=0; j<32;j++)
-		{
-			BG_MAP_RAM(26)[32*i+j] = 0;
-		}
-	}
-
-	i = 0;
-	j = 0;
-
-	// Display planets
-	while( (Planet[i].pos.x) || (Planet[i].pos.y) )
-	{
-	    for(row = (Planet[i].pos.y)/8 -2; row< (Planet[i].pos.y)/8 +2; row++)
-	    {
-	    	for(column=(Planet[i].pos.x)/8 ; column< 4+(Planet[i].pos.x)/8 ; column++)
-	    	{
-	    		BG_MAP_RAM(26)[row*32 + column-2 ] = planetBWMap[j];
-	    		j++;
-
-	    	}
-	    }
-	    i++;
-	    j= 0;
-	}
-
-}
-
+/**
+ * Set up sprite mode for the spaceship
+ *
+ */
 void setUp_Spaceship_Background()
 {
-
 	VRAM_E_CR = VRAM_ENABLE | VRAM_E_MAIN_SPRITE;
 	oamInit(&oamMain, SpriteMapping_1D_32, false);
 
 	gfx_Spaceship = oamAllocateGfx(&oamMain, SpriteSize_32x32, SpriteColorFormat_256Color);
 
     swiCopy(spaceshipPal, SPRITE_PALETTE, spaceshipPalLen/2);
-
     swiCopy((u16*)spaceshipTiles, gfx_Spaceship, spaceshipTilesLen/2);
-
 }
 
+
+/**
+ * Display the new position of the spaceship
+ *
+ */
 void update_Spaceship(Coordonnee* location, Coordonnee dir)
 {
-    float theta=0.0;
-    theta=( atan2(dir.y,dir.x) +PI/2)*32768/(2*PI);
+    float theta=( atan2(dir.y,dir.x) +PI/2)*32768/(2*PI); // angle of rotation of the spaceship
 
     s16 s = sinLerp(theta) >> 4;
     s16 c = cosLerp(theta) >> 4;
 
+    // rotate spaceship's sprite
     oamMain.oamRotationMemory->hdx = c;
     oamMain.oamRotationMemory->hdy = s;
     oamMain.oamRotationMemory->vdx = -s;
     oamMain.oamRotationMemory->vdy = c;
 
+    // translate spaceship's sprite
     oamSet(&oamMain,
     		0,
     		location[0].x/N_POS - SIZE_SPRITE/2, location[0].y/N_POS - SIZE_SPRITE/2,
@@ -227,37 +184,42 @@ void update_Spaceship(Coordonnee* location, Coordonnee dir)
     		false, false,
     		false);
 
+    // update display of the sprite
     oamUpdate(&oamMain);
 }
 
+/**
+ * Set up memory bank and control register for displaying the map and the flame of the spaceship
+ * Display the map chosen by the player
+ *
+ */
 void setUp_MAP(struct Planets *Planet)
 {
+	// Set up memory and register for the map and the spaceship flame
 	REG_DISPCNT = MODE_5_2D | DISPLAY_BG3_ACTIVE| DISPLAY_BG2_ACTIVE;
 
-	VRAM_A_CR = VRAM_ENABLE | VRAM_A_MAIN_BG;
-	VRAM_B_CR = VRAM_ENABLE | VRAM_B_MAIN_BG;
+	VRAM_A_CR = VRAM_ENABLE | VRAM_A_MAIN_BG; // memory for the map
+	VRAM_B_CR = VRAM_ENABLE | VRAM_B_MAIN_BG; // memory for the flame
 
-	BGCTRL[3] = BG_BMP_BASE(0)|(u16)BgSize_B8_256x256; // memory for the map
-	BGCTRL[2] = BG_BMP_BASE(8)|(u16)BgSize_B16_256x256; // memory for the flame
+	BGCTRL[3] = BG_BMP_BASE(0)|(u16)BgSize_B8_256x256; // map
+	BGCTRL[2] = BG_BMP_BASE(8)|(u16)BgSize_B16_256x256; // flame
 
 
 
-    //SetUp for map
+    //Affine Matrix
     REG_BG3PA = 256;
     REG_BG3PC = 0;
     REG_BG3PB = 0;
     REG_BG3PD = 256;
 
+
+    // load image map depending on the choice of map
     if(Planet[N_PLANET_MAX-1].mu)
     {
     	swiCopy(MAP4Pal, BG_PALETTE, MAP4PalLen);
     	swiCopy(MAP4Bitmap, BG_GFX, MAP4BitmapLen/2);
 
     }
-    /*else if (Planet[N_PLANET_MAX-2].mu)
-    {
-
-    }*/
     else if (Planet[N_PLANET_MAX-3].mu)
     {
     	swiCopy(MAP3Pal, BG_PALETTE, MAP3PalLen/2);
@@ -277,30 +239,36 @@ void setUp_MAP(struct Planets *Planet)
 	// clear previous flame
 	int i = 0;
 	u16 *ptr_GFX = BG_BMP_RAM(8);
-	for(i=0; i<256*192; i++)
+	for(i=0; i<SIZE_SCREEN_X*SIZE_SCREEN_Y; i++)
 	{
 		ptr_GFX[i] = ARGB16(0,0,0,0);
 	}
-
 }
 
+/**
+ * Update the color and position of the spaceship's flame
+ *
+ */
 void update_flamme(Coordonnee* location)
 {
 	int i;
-	//u8 *ptr_GFX = (u8*)BG_GFX;
+	u16 *ptr_GFX = BG_BMP_RAM(8); // slot 8 correspond to the VRAM B
 
-	u16 *ptr_GFX = BG_BMP_RAM(8);
-
+	// Display the actual flame
 	for(i=0; i< NB_POS-1; i++)
 	{
-		//ptr_GFX[ (location[i].y/N_POS)*SIZE_SCREEN_X + (location[i].x/N_POS)] = i*256/NB_POS;
 		ptr_GFX[ (location[i].y/N_POS)*SIZE_SCREEN_X + (location[i].x/N_POS)] = ARGB16(1, 31-i*31/NB_POS, 10-i*10/NB_POS, 7);
 	}
+
+	// Display a faint trace of the spaceship
 	ptr_GFX[ (location[i].y/N_POS)*SIZE_SCREEN_X + (location[i].x/N_POS)] = ARGB16(1,5,2,2);
 
 }
 
-
+/**
+ * Set up memory bank and control register for displaying the arrow on the lower screen
+ *
+ */
 void setUp_gameSub()
 {
 	VRAM_C_CR = VRAM_ENABLE| VRAM_C_SUB_BG;
@@ -311,58 +279,60 @@ void setUp_gameSub()
 
 
 
-    //Affine Marix Transformation
+    //Affine Matrix Transformation
     REG_BG2PA_SUB = 256;
     REG_BG2PC_SUB = 0;
     REG_BG2PB_SUB = 0;
     REG_BG2PD_SUB = 256;
 
     u16 i;
-    //u16 *ptr_palette_sub = BG_PALETTE_SUB;
-    //u8 *ptr_GFX_sub = (u8*)BG_BMP_RAM_SUB(16);
-    u16 *ptr_GFX_sub = BG_BMP_RAM_SUB(16);
+    u16 *ptr_GFX_sub = BG_BMP_RAM_SUB(16); // slot 16 correspond to the VRAM C
 
-    /*for(i=0; i<255; i++)
-    {
-    	ptr_palette_sub[i] = ARGB16(1,(20*i)/256, 0, (31*i)/256);
-    }*/
-
-    for(i=0; i<256*255 ; i++)
+    // clear the screen
+    for(i=0; i<(SIZE_SCREEN_X*SIZE_SCREEN_X)-1 ; i++)
     {
     	ptr_GFX_sub[i] = ARGB16(1,0,0,0);
     }
 
 }
 
-
+/**
+ * Draw a line representing the initial speed vector of the spaceship
+ *
+ */
 void drawLineRotation(double angle, int size)
 {
+	// check if the arrow is not too big
 	if(size>SIZE_SCREEN_Y)
 	{
 		size = SIZE_SCREEN_Y;
 	}
 
-	//u8 *ptr_GFX_sub = (u8*)BG_BMP_RAM_SUB(16);
-	u16 *ptr_GFX_sub = BG_BMP_RAM_SUB(16);
+	u16 *ptr_GFX_sub = (u16*)BG_BMP_RAM_SUB(16); // slot 16 correspond to the VRAM C
 	int row, column, t, thickness =1;
 
+	irqDisable(IRQ_TIMER0);
+
+	// draw the arrow vertically
 	for(row=0; row<SIZE_SCREEN_Y; row++)
 	{
 		for(column = 0; column < SIZE_SCREEN_X; column++)
 		{
 
-			ptr_GFX_sub[row*256 + column] = ARGB16(1,0,0,0);
+			ptr_GFX_sub[row*256 + column] = ARGB16(1,0,0,0); // clear the screen
 		}
-
+		// check if still on the screen
 		if( (row<SIZE_SCREEN_Y/2 +size/2) && (row>SIZE_SCREEN_Y/2 -size/2) )
 		{
 			for(t= -thickness/2; t< thickness/2; t++)
 			{
+				// draw pixel by pixel
 				ptr_GFX_sub[row*SIZE_SCREEN_X + SIZE_SCREEN_X/2 + t] = ARGB16(1,31-2*abs(t)*31/thickness,10-2*abs(t)*10/thickness, 7) ;
 			}
 
 			if( ((row-SIZE_SCREEN_Y/2))%(SLOPE_ARROW) == 0 )
 			{
+				// arrow gets thicker little by little
 				thickness++;
 			}
 
@@ -370,13 +340,17 @@ void drawLineRotation(double angle, int size)
 
 	}
 
+	// rotate the arrow around center of the screen
+
+    REG_BG2X_SUB = ( (-SIZE_SCREEN_X/2)*(cos(angle)-1) + (SIZE_SCREEN_Y/2)*sin(angle) )*256;
+    REG_BG2Y_SUB = ( (-SIZE_SCREEN_X/2)*sin(angle) - (SIZE_SCREEN_Y/2)*(cos(angle)-1) )*256;
+
     REG_BG2PA_SUB = cos(angle)*256;
     REG_BG2PC_SUB = sin(angle)*256;
     REG_BG2PB_SUB = (-1)*sin(angle)*256;
     REG_BG2PD_SUB = cos(angle)*256;
 
-    REG_BG2X_SUB = ( (-SIZE_SCREEN_X/2)*(cos(angle)-1) + (SIZE_SCREEN_Y/2)*sin(angle) )*256;
-    REG_BG2Y_SUB = ( (-SIZE_SCREEN_X/2)*sin(angle) - (SIZE_SCREEN_Y/2)*(cos(angle)-1) )*256;
+    irqEnable(IRQ_TIMER0);
 
 }
 
