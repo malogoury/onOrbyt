@@ -20,6 +20,9 @@ void game_main();
 void game_reset();
 void game_GameOver();
 
+/**
+ * inits map (planets for physics) and sound
+ */
 void game_init(Maps map)
 {
 	map_init(planets, map);
@@ -27,31 +30,33 @@ void game_init(Maps map)
 	game_reset();
 	game_main();
 }
+
+/**
+ * inits graphics and physic
+ */
 void game_reset()
 {
 	graphic_gameInit(planets);
 	physic_init(&orion);
 	state_game=INIT_game;
 }
+
+/**
+ * called every 10ms by the timer ISR
+ * updates physics and detect if game over
+ */
 void game_update(void)
 {
-	static int counter = 0;
-
 	if(state_game==PLAY_game)
 	{
 		physic_updatePos(&orion, planets);
 		game_GameOver();
-
-		counter++;
-		if(counter > 10)
-		{
-			sound_gameUpdate(orion.speed);
-			counter = 0;
-		}
-
 	}
 }
 
+/**
+ * Detects if spacecraft is inside the radius of a planet
+ */
 void game_GameOver()
 {
 	int i,dist2=0;
@@ -65,6 +70,10 @@ void game_GameOver()
 		}
 	}
 }
+
+/**
+ * updates main and sub graphics
+ */
 void game_displayUpdate(void)
 {
 	graphic_gameUpdate(orion.pos,orion.speed);
@@ -72,18 +81,25 @@ void game_displayUpdate(void)
 		graphic_gameUpdateSub(arrow[FRONT],arrow[TAIL]);
 }
 
+/**
+ * key pooling and FSMs update
+ */
 void game_main()
 {
 	FSM_sub state_arrow=INIT_sub;
 	touchPosition touch;
 	while(1)
 	{
+		// resets graphics and physics in case of game over or new init vector
 		if(state_game==GAME_OVER_game)
 		{
 			sound_gameOver();
 			game_reset();
 		}
+
 		scanKeys();
+
+		// save vector initial coordinates
 		if(keysDown() & KEY_TOUCH)
 		{
 			touchRead(&touch);
@@ -94,6 +110,7 @@ void game_main()
 				state_arrow=DRAG_sub;
 			}
 		}
+		// creates vector, reset game, launch spacecraft
 		else if(keysUp() & KEY_TOUCH && state_arrow==DRAG_sub)
 		{
 			if(state_game == PLAY_game)
@@ -105,18 +122,21 @@ void game_main()
 			state_arrow=INIT_sub;
 			state_game=PLAY_game;
 		}
+		// update vector for sub graphics
 		if(keysHeld() & KEY_TOUCH && state_arrow==DRAG_sub)
 		{
 			touchRead(&touch);
 			arrow[TAIL].x=touch.px;
 			arrow[TAIL].y=touch.py;
 		}
+		// resets game to return to menu
 		if(keysDown() & KEY_START)
 		{
 			state_game = RESET_game;
 			// return to onOrbytGameplay.
 			break;
 		}
+		// update graphic
 		game_displayUpdate();
 		swiWaitForVBlank();
 	}

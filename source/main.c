@@ -10,17 +10,14 @@
 #include "LL_Timer.h"
 
 int main(void) {
-	// Initialisations
 
-    //consoleDemoInit();
-
+ 	// 10ms interruption for game's physics update
     timer_init();
+
+    // infinite loop for gameplay FSM: 
     while(1)
     	gameplay_init();
+    	// return from gameplay_init() is done only in case of a game reset
 
-//    // Main infinite loop
-//    while(1){
-//        //swiWaitForVBlank();
-//    }
     return 0;
 }

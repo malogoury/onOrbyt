@@ -12,6 +12,9 @@ void map2_init(Planet* planets);
 void map3_init(Planet* planets);
 void map4_init(Planet* planets);
 
+/**
+ * initialize planets' characteristics depending on Maps enum parameter
+ */
 void map_init(Planet* planets, Maps map)
 {
 	switch(map)
