@@ -20,7 +20,7 @@ struct Coordonnees
 
 typedef struct Planets Planet;
 struct Planets {
-	int mu;
+	int mu;				// mu is G*M
 	int radius;
 	Coordonnee pos;
 
