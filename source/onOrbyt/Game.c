@@ -42,7 +42,6 @@ void game_update(void)
 		physic_updatePos(&orion, planets);
 		game_GameOver();
 
-
 		counter++;
 		if(counter > 10)
 		{
@@ -68,9 +67,8 @@ void game_GameOver()
 }
 void game_displayUpdate(void)
 {
-
 	graphic_gameUpdate(orion.pos,orion.speed);
-	if(state_game==INIT_game)
+	if(state_game==INIT_game || state_game==PLAY_game)
 		graphic_gameUpdateSub(arrow[FRONT],arrow[TAIL]);
 }
 
@@ -91,8 +89,6 @@ void game_main()
 			touchRead(&touch);
 			if((touch.px || touch.py) && state_arrow==INIT_sub)
 			{
-				if(state_game == PLAY_game)
-					game_reset();
 				arrow[FRONT].x=touch.px;
 				arrow[FRONT].y=touch.py;
 				state_arrow=DRAG_sub;
@@ -100,6 +96,8 @@ void game_main()
 		}
 		else if(keysUp() & KEY_TOUCH && state_arrow==DRAG_sub)
 		{
+			if(state_game == PLAY_game)
+				game_reset();
 			Coordonnee vect;
 			vect.x = arrow[FRONT].x-arrow[TAIL].x;
 			vect.y = arrow[FRONT].y-arrow[TAIL].y;
@@ -113,23 +111,10 @@ void game_main()
 			arrow[TAIL].x=touch.px;
 			arrow[TAIL].y=touch.py;
 		}
-		if(keysDown() & KEY_RIGHT)
-		{
-			if(state_game==INIT_game)
-			{
-				orion.speed.x = VX_INIT*N_VEL;
-				orion.speed.y = VY_INIT*N_VEL;
-				state_game=PLAY_game;
-			}
-		}
-		else if(keysDown() & KEY_DOWN)
-		{
-			if(state_game == PLAY_game)
-				game_reset();
-		}
 		if(keysDown() & KEY_START)
 		{
 			state_game = RESET_game;
+			// return to onOrbytGameplay.
 			break;
 		}
 		game_displayUpdate();

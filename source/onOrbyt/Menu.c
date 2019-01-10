@@ -16,9 +16,9 @@ FSM_menu state_menu = IDLE_menu;
 void menu_main(Maps* map);
 void menu_init(Maps* map)
 {
+	state_menu=INIT_menu;
 	graphic_menuInit();
 	sound_menuInit();
-	state_menu=INIT_menu;
 	menu_main(map);
 }
 
