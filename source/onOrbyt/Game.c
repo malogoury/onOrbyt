@@ -78,7 +78,7 @@ void game_displayUpdate(void)
 {
 	graphic_gameUpdate(orion.pos,orion.speed);
 	if(state_game==INIT_game || state_game==PLAY_game)
-		graphic_gameUpdateSub(arrow[FRONT],arrow[TAIL]);
+		graphic_gameUpdateSub(arrow[FRONT],arrow[TAIL],orion.speed );
 }
 
 /**

@@ -7,21 +7,90 @@
  *  Low level functions to display graphics
  */
 
+
 #include <nds.h>
 #include <math.h>
 #include "LL_Graphic.h"
 
-#define	SLOPE_ARROW		5
 #define	SIZE_SCREEN_X	256
 #define	SIZE_SCREEN_Y	192
-#define NB_UPDATE		3
-
+#define SIZE_TILE		32
 #define SIZE_SPRITE		64
-#define	PI				3.14159
 
+#define	PI				3.14159
 #define N_PLANET_MAX	5
 
+// sub slot memory
+#define MAP_SUB	0
+#define TILE_SUB	11
+#define BMP_PANEL	8
+#define BMP_ARROW	4
+
+#define POS_LED		19*32 + 16
+#define POS_SCORE	21*32
+#define TIMER_LED	10
+#define TIMER_LED2	4
+#define TIMER_SCORE	5000
+#define	SCALE_POWER	8
+#define SCALE_SPEED	3
+
+#define EMPTY_TILE	0
+#define	MEDIUM_TILE	1
+#define POWER_TILE	2
+#define LED_TILE	3
+
 u16 *gfx_Spaceship = NULL;
+
+u8 emptyTile[64] =
+{
+	0,0,0,0,0,0,0,0,
+	0,0,0,0,0,0,0,0,
+	0,0,0,0,0,0,0,0,
+	0,0,0,0,0,0,0,0,
+	0,0,0,0,0,0,0,0,
+	0,0,0,0,0,0,0,0,
+	0,0,0,0,0,0,0,0,
+	0,0,0,0,0,0,0,0
+};
+
+u8 mediumTile[64] =
+{
+		1,1,1,1,1,1,1,1,
+		1,1,3,3,3,3,1,1,
+		1,3,3,3,3,3,3,1,
+		1,3,3,3,3,3,3,1,
+		1,3,3,3,3,3,3,1,
+		1,3,3,3,3,3,3,1,
+		1,1,3,3,3,3,1,1,
+		1,1,1,1,1,1,1,1
+
+};
+
+u8 powerTile[64] =
+{
+		1,1,1,1,1,1,1,1,
+		3,3,3,3,3,3,3,3,
+		5,5,5,5,5,5,5,5,
+		5,5,5,5,5,5,5,5,
+		5,5,5,5,5,5,5,5,
+		5,5,5,5,5,5,5,5,
+		3,3,3,3,3,3,3,3,
+		1,1,1,1,1,1,1,1
+};
+
+u8 LEDTile[64] =
+{
+		1,1,1,1,1,1,1,1,
+		1,1,3,3,3,3,1,1,
+		1,3,3,5,5,3,3,1,
+		1,3,5,5,5,5,3,1,
+		1,3,5,5,5,5,3,1,
+		1,3,3,5,5,3,3,1,
+		1,1,3,3,3,3,1,1,
+		1,1,1,1,1,1,1,1
+};
+
+
 
 
 void setUp_Spaceship_Background();
@@ -31,8 +100,17 @@ void setUp_UpperMenu();
 void setUp_LowerMenu();
 void update_Spaceship(Coordonnee* location, Coordonnee dir);
 void update_flamme(Coordonnee* location);
-void drawLineRotation(double angle, int size);
+void rotoscaleSpaceship(double angle, int size);
+void draw_Power_Spaceship(int power);
+void draw_Speed_Spaceship(int speed);
+void draw_Time_Spaceship(int speed);
+void draw_Led_Spaceship();
+void draw_Led2_Spaceship();
 
+
+
+
+//--------INITIALIZATION-----------------------------------------//
 
 
 /**
@@ -59,35 +137,8 @@ void graphic_menuInit()
 }
 
 
-/**
- * Update the upper graphic (Spaceship and its flame)
- *
- */
-void graphic_gameUpdate(Coordonnee* location, Coordonnee dir)
-{
-	update_Spaceship(location, dir);
-	update_flamme(location);
-}
 
-/**
- * Update the lower graphic
- *
- */
-void graphic_gameUpdateSub(Coordonnee p0, Coordonnee p1)
-{
-	static int counter = 0;
-
-	if (counter > NB_UPDATE) // update the arrow only once in a while
-	{
-		double angle = atan2( (p1.x-p0.x),(p1.y-p0.y) ); // angle of the arrow
-		int size = sqrt((p0.x-p1.x)*(p0.x-p1.x) + (p0.y-p1.y)*(p0.y-p1.y)); // length of the arrow
-
-		drawLineRotation(angle, size);
-		counter = 0;
-	}
-	counter ++;
-
-}
+//--------MEMORY SET-UP-----------------------------------------//
 
 /**
  * Set up memory bank and control register for upper menu image
@@ -121,7 +172,7 @@ void setUp_LowerMenu()
 
 	VRAM_C_CR = VRAM_ENABLE| VRAM_C_SUB_BG;
 
-    BGCTRL_SUB[2] = BG_BMP_BASE(16) |(u16)BgSize_B8_256x256;
+    BGCTRL_SUB[2] = BG_BMP_BASE(8) |(u16)BgSize_B8_256x256;
 
     //Affine Matrix Transformation
     REG_BG2PA_SUB = 256;
@@ -129,60 +180,11 @@ void setUp_LowerMenu()
     REG_BG2PB_SUB = 0;
     REG_BG2PD_SUB = 256;
 
+    REG_BG2X_SUB = 0;
+    REG_BG2Y_SUB = 0;
+
     swiCopy(menu_lowerPal, BG_PALETTE_SUB, menu_lowerPalLen);
     swiCopy(menu_lowerBitmap, BG_BMP_RAM_SUB(16), menu_lowerBitmapLen/2);
-}
-
-/**
- * Set up sprite mode for the spaceship
- *
- */
-void setUp_Spaceship_Background()
-{
-	VRAM_E_CR = VRAM_ENABLE | VRAM_E_MAIN_SPRITE;
-	oamInit(&oamMain, SpriteMapping_1D_32, false);
-
-	gfx_Spaceship = oamAllocateGfx(&oamMain, SpriteSize_32x32, SpriteColorFormat_256Color);
-
-    swiCopy(spaceshipPal, SPRITE_PALETTE, spaceshipPalLen/2);
-    swiCopy((u16*)spaceshipTiles, gfx_Spaceship, spaceshipTilesLen/2);
-}
-
-
-/**
- * Display the new position of the spaceship
- *
- */
-void update_Spaceship(Coordonnee* location, Coordonnee dir)
-{
-    float theta=( atan2(dir.y,dir.x) +PI/2)*32768/(2*PI); // angle of rotation of the spaceship
-
-    s16 s = sinLerp(theta) >> 4;
-    s16 c = cosLerp(theta) >> 4;
-
-    // rotate spaceship's sprite
-    oamMain.oamRotationMemory->hdx = c;
-    oamMain.oamRotationMemory->hdy = s;
-    oamMain.oamRotationMemory->vdx = -s;
-    oamMain.oamRotationMemory->vdy = c;
-
-    // translate spaceship's sprite
-    oamSet(&oamMain,
-    		0,
-    		location[0].x/N_POS - SIZE_SPRITE/2, location[0].y/N_POS - SIZE_SPRITE/2,
-    		0,
-    		0,
-    		SpriteSize_32x32,
-    		SpriteColorFormat_256Color,
-    		gfx_Spaceship,
-    		0,
-    		true,
-    		false,
-    		false, false,
-    		false);
-
-    // update display of the sprite
-    oamUpdate(&oamMain);
 }
 
 /**
@@ -198,8 +200,8 @@ void setUp_MAP(struct Planets *Planet)
 	VRAM_A_CR = VRAM_ENABLE | VRAM_A_MAIN_BG; // memory for the map
 	VRAM_B_CR = VRAM_ENABLE | VRAM_B_MAIN_BG; // memory for the flame
 
-	BGCTRL[3] = BG_BMP_BASE(0)|(u16)BgSize_B8_256x256; // map
-	BGCTRL[2] = BG_BMP_BASE(8)|(u16)BgSize_B16_256x256; // flame
+	BGCTRL[3] = BG_BMP_BASE(0)|(u16)BgSize_B8_256x256; // Background for the map
+	BGCTRL[2] = BG_BMP_BASE(8)|(u16)BgSize_B16_256x256; // Background for the flame
 
 
 
@@ -243,13 +245,175 @@ void setUp_MAP(struct Planets *Planet)
 }
 
 /**
+ * Set up memory bank and control register for displaying the arrow on the lower screen
+ *
+ */
+void setUp_gameSub()
+{
+	u16 i;
+
+	VRAM_C_CR = VRAM_ENABLE| VRAM_C_SUB_BG;
+	VRAM_I_CR = VRAM_ENABLE | VRAM_I_SUB_BG_0x06208000;
+
+	REG_DISPCNT_SUB = MODE_5_2D | DISPLAY_BG1_ACTIVE | DISPLAY_BG2_ACTIVE | DISPLAY_BG3_ACTIVE;
+
+	BGCTRL_SUB[1] = BG_32x32 | BG_COLOR_256 | BG_MAP_BASE(MAP_SUB) | BG_TILE_BASE(TILE_SUB); // Background for animation
+	BGCTRL_SUB[2] = BG_BMP_BASE(BMP_ARROW) |(u16)BgSize_B8_256x256; // Background for rotating spaceship
+	BGCTRL_SUB[3] = BG_BMP_BASE(BMP_PANEL) |(u16)BgSize_B8_256x256; // Background for control panel
+
+
+
+
+    //Affine Matrix Transformation
+
+    REG_BG2PA_SUB = 256;
+    REG_BG2PC_SUB = 0;
+    REG_BG2PB_SUB = 0;
+    REG_BG2PD_SUB = 256;
+
+    REG_BG2X_SUB = 0;
+    REG_BG2Y_SUB = 0;
+
+    REG_BG3PA_SUB = 256;
+    REG_BG3PC_SUB = 0;
+    REG_BG3PB_SUB = 0;
+    REG_BG3PD_SUB = 256;
+
+    REG_BG3X_SUB = 0;
+    REG_BG3Y_SUB = 0;
+;
+	// create palette
+	swiCopy(panel_controlPal, BG_PALETTE_SUB, panel_controlPalLen);
+
+    // clear the screen
+	u8 *ptr_GFX_sub = (u8*)BG_BMP_RAM_SUB(BMP_PANEL);
+    for(i=0; i<(SIZE_SCREEN_X*SIZE_SCREEN_X)-1 ; i++)
+    {
+    	ptr_GFX_sub[i] = 0;
+    }
+
+    // Display panel control and rotating spaceship
+    ptr_GFX_sub = (u8*)BG_BMP_RAM_SUB(BMP_PANEL);
+    swiCopy(panel_controlBitmap, ptr_GFX_sub, panel_controlBitmapLen/2);
+    ptr_GFX_sub = (u8*)BG_BMP_RAM_SUB(BMP_ARROW);
+    swiCopy(arrow_spaceshipBitmap, ptr_GFX_sub, arrow_spaceshipBitmapLen/2);
+
+    dmaCopy(emptyTile, &BG_TILE_RAM_SUB(TILE_SUB)[EMPTY_TILE*SIZE_TILE], SIZE_TILE*2);
+    dmaCopy(mediumTile, &BG_TILE_RAM_SUB(TILE_SUB)[MEDIUM_TILE*SIZE_TILE], SIZE_TILE*2);
+    dmaCopy(powerTile, &BG_TILE_RAM_SUB(TILE_SUB)[POWER_TILE*SIZE_TILE], SIZE_TILE*2);
+    dmaCopy(LEDTile, &BG_TILE_RAM_SUB(TILE_SUB)[LED_TILE*SIZE_TILE], SIZE_TILE*2);
+
+    for(i=0; i<32*32;i++)
+    {
+    	BG_MAP_RAM_SUB(MAP_SUB)[i] = EMPTY_TILE;
+    }
+
+
+}
+
+/**
+ * Set up sprite mode for the spaceship
+ *
+ */
+void setUp_Spaceship_Background()
+{
+	VRAM_E_CR = VRAM_ENABLE | VRAM_E_MAIN_SPRITE;
+	oamInit(&oamMain, SpriteMapping_1D_32, false);
+
+	gfx_Spaceship = oamAllocateGfx(&oamMain, SpriteSize_32x32, SpriteColorFormat_256Color);
+
+    swiCopy(spaceshipPal, SPRITE_PALETTE, spaceshipPalLen/2);
+    swiCopy((u16*)spaceshipTiles, gfx_Spaceship, spaceshipTilesLen/2);
+}
+
+
+
+
+//--------GRAPHIC UPDATE-----------------------------------------//
+
+/**
+ * Update the upper graphic (Spaceship and its flame)
+ *
+ */
+void graphic_gameUpdate(Coordonnee* location, Coordonnee dir)
+{
+	update_Spaceship(location, dir);
+	update_flamme(location);
+}
+
+/**
+ * Update the lower graphic
+ *
+ */
+void graphic_gameUpdateSub(Coordonnee p0, Coordonnee p1, Coordonnee speed)
+{
+
+
+	double angle = atan2( (p1.x-p0.x),(p1.y-p0.y) ); // angle of the arrow
+	int size = sqrt((p0.x-p1.x)*(p0.x-p1.x) + (p0.y-p1.y)*(p0.y-p1.y)); // length of the arrow
+
+	rotoscaleSpaceship(angle, size);
+	draw_Power_Spaceship(size);
+	draw_Led_Spaceship();
+	draw_Led2_Spaceship();
+
+	// scale the speed to normal units
+	speed.x = speed.x/N_VEL;
+	speed.y = speed.y/N_VEL;
+
+	draw_Speed_Spaceship(sqrt(speed.x*speed.x + speed.y*speed.y));
+	draw_Time_Spaceship(sqrt(speed.x*speed.x + speed.y*speed.y));
+}
+
+
+
+/**
+ * Display the new position of the spaceship
+ *
+ */
+void update_Spaceship(Coordonnee* location, Coordonnee dir)
+{
+    float theta=( atan2(dir.y,dir.x) +PI/2)*32768/(2*PI); // angle of rotation of the spaceship
+
+    s16 s = sinLerp(theta) >> 4;
+    s16 c = cosLerp(theta) >> 4;
+
+    // rotate spaceship's sprite
+    oamMain.oamRotationMemory->hdx = c;
+    oamMain.oamRotationMemory->hdy = s;
+    oamMain.oamRotationMemory->vdx = -s;
+    oamMain.oamRotationMemory->vdy = c;
+
+    // translate spaceship's sprite
+    oamSet(&oamMain,
+    		0,
+    		location[0].x/N_POS - SIZE_SPRITE/2, location[0].y/N_POS - SIZE_SPRITE/2,
+    		0,
+    		0,
+    		SpriteSize_32x32,
+    		SpriteColorFormat_256Color,
+    		gfx_Spaceship,
+    		0,
+    		true,
+    		false,
+    		false, false,
+    		false);
+
+    // update display of the sprite
+    oamUpdate(&oamMain);
+}
+
+
+
+
+/**
  * Update the color and position of the spaceship's flame
  *
  */
 void update_flamme(Coordonnee* location)
 {
 	int i;
-	u16 *ptr_GFX = BG_BMP_RAM(8); // slot 8 correspond to the VRAM B
+	u16 *ptr_GFX = BG_BMP_RAM(8);
 
 	// Display the actual flame
 	for(i=0; i< NB_POS-1; i++)
@@ -263,91 +427,160 @@ void update_flamme(Coordonnee* location)
 }
 
 /**
- * Set up memory bank and control register for displaying the arrow on the lower screen
+ * Draw a line of tiles proportional to the initial speed of the spaceship
  *
  */
-void setUp_gameSub()
+void draw_Power_Spaceship(int power)
 {
-	VRAM_C_CR = VRAM_ENABLE| VRAM_C_SUB_BG;
+	int i;
 
-	BGCTRL_SUB[2] = BG_BMP_BASE(16) |(u16)BgSize_B16_256x256;
+	power = power/SCALE_POWER; // scale to fit in the screen
 
-	REG_DISPCNT_SUB = MODE_5_2D | DISPLAY_BG2_ACTIVE;
+	// check boundaries
+	if(power > SIZE_TILE)
+	{
+		power = SIZE_TILE;
+	}
+	if(power<0)
+	{
+		power = 0;
+	}
 
-
-
-    //Affine Matrix Transformation
-    REG_BG2PA_SUB = 256;
-    REG_BG2PC_SUB = 0;
-    REG_BG2PB_SUB = 0;
-    REG_BG2PD_SUB = 256;
-
-    u16 i;
-    u16 *ptr_GFX_sub = BG_BMP_RAM_SUB(16); // slot 16 correspond to the VRAM C
-
-    // clear the screen
-    for(i=0; i<(SIZE_SCREEN_X*SIZE_SCREEN_X)-1 ; i++)
+	// Clear previous speed
+    for(i=0; i<(2*SIZE_TILE);i++)
     {
-    	ptr_GFX_sub[i] = ARGB16(1,0,0,0);
+    	BG_MAP_RAM_SUB(MAP_SUB)[i] = EMPTY_TILE;
     }
+    // Draw actual speed
+    for(i=0; i<power;i++)
+    {
+    	BG_MAP_RAM_SUB(MAP_SUB)[i] = POWER_TILE;
+    	BG_MAP_RAM_SUB(MAP_SUB)[i + 32] = POWER_TILE;
+    }
+
+}
+/**
+ *  Draw a line of tiles proportional to the actual speed of the spaceship
+ *
+ */
+void draw_Speed_Spaceship(int speed)
+{
+	int i;
+	speed = speed/SCALE_SPEED; // scale to fit in the screen
+
+	// Check boundaries
+	if(speed>SIZE_TILE)
+	{
+		speed = SIZE_TILE;
+	}
+	if(speed<1)
+	{
+		speed = 0;
+	}
+
+	// Clear previous speed
+    for(i=0; i<(2*SIZE_TILE);i++)
+    {
+    	BG_MAP_RAM_SUB(MAP_SUB)[22*SIZE_TILE + i] = EMPTY_TILE;
+    }
+    // Draw actual speed
+    for(i=0; i<speed;i++)
+    {
+    	BG_MAP_RAM_SUB(MAP_SUB)[22*SIZE_TILE + i] = POWER_TILE;
+    	BG_MAP_RAM_SUB(MAP_SUB)[23*SIZE_TILE + i] = POWER_TILE;
+    }
+}
+
+/**
+ * Draw a line of tiles proportional to the time of flight of the spaceship
+ *
+ */
+void draw_Time_Spaceship(int speed)
+{
+	static int i = 0;
+	static int distance = 0;
+
+	if(speed == 0) // reset command
+	{
+		i = 0;
+	}
+
+	distance += speed; // integrate speed to get the distance
+
+	// draw a new tile when the distance cross the threshold
+	if(distance > TIMER_SCORE && i < SIZE_TILE)
+	{
+		BG_MAP_RAM_SUB(MAP_SUB)[POS_SCORE + i] = LED_TILE;
+		i++;
+		distance = 0;
+	}
 
 }
 
 /**
- * Draw a line representing the initial speed vector of the spaceship
+ * Blink a LED at regular interval
  *
  */
-void drawLineRotation(double angle, int size)
+void draw_Led_Spaceship()
 {
-	// check if the arrow is not too big
-	if(size>SIZE_SCREEN_Y)
+	static int counter = 0;
+
+	if(counter > 2*TIMER_LED)// turn off the LED
 	{
-		size = SIZE_SCREEN_Y;
+		BG_MAP_RAM_SUB(MAP_SUB)[POS_LED] = EMPTY_TILE;
 	}
-
-	u16 *ptr_GFX_sub = (u16*)BG_BMP_RAM_SUB(16); // slot 16 correspond to the VRAM C
-	int row, column, t, thickness =1;
-
-	irqDisable(IRQ_TIMER0);
-
-	// draw the arrow vertically
-	for(row=0; row<SIZE_SCREEN_Y; row++)
+	if(counter > 3*TIMER_LED)// transitional state of the LED
 	{
-		for(column = 0; column < SIZE_SCREEN_X; column++)
-		{
-
-			ptr_GFX_sub[row*256 + column] = ARGB16(1,0,0,0); // clear the screen
-		}
-		// check if still on the screen
-		if( (row<SIZE_SCREEN_Y/2 +size/2) && (row>SIZE_SCREEN_Y/2 -size/2) )
-		{
-			for(t= -thickness/2; t< thickness/2; t++)
-			{
-				// draw pixel by pixel
-				ptr_GFX_sub[row*SIZE_SCREEN_X + SIZE_SCREEN_X/2 + t] = ARGB16(1,31-2*abs(t)*31/thickness,10-2*abs(t)*10/thickness, 7) ;
-			}
-
-			if( ((row-SIZE_SCREEN_Y/2))%(SLOPE_ARROW) == 0 )
-			{
-				// arrow gets thicker little by little
-				thickness++;
-			}
-
-		}
-
+		BG_MAP_RAM_SUB(MAP_SUB)[POS_LED] = MEDIUM_TILE;
 	}
+	if(counter > 4*TIMER_LED)// turn on the LED
+	{
+		BG_MAP_RAM_SUB(MAP_SUB)[POS_LED] = LED_TILE;
+		counter = 0;
+	}
+	counter++;
+}
 
-	// rotate the arrow around center of the screen
+/**
+ * Blink another LED at regular interval
+ *
+ */
+void draw_Led2_Spaceship()
+{
+	static int counter = 0;
 
-    REG_BG2X_SUB = ( (-SIZE_SCREEN_X/2)*(cos(angle)-1) + (SIZE_SCREEN_Y/2)*sin(angle) )*256;
-    REG_BG2Y_SUB = ( (-SIZE_SCREEN_X/2)*sin(angle) - (SIZE_SCREEN_Y/2)*(cos(angle)-1) )*256;
+	if(counter > 2*TIMER_LED2)// turn off the LED
+	{
+		BG_MAP_RAM_SUB(MAP_SUB)[POS_LED-1] = EMPTY_TILE;
+	}
+	if(counter > 3*TIMER_LED2)// transitional state of the LED
+	{
+		BG_MAP_RAM_SUB(MAP_SUB)[POS_LED-1] = MEDIUM_TILE;
+	}
+	if(counter > 4*TIMER_LED2)// turn on the LED
+	{
+		BG_MAP_RAM_SUB(MAP_SUB)[POS_LED-1] = LED_TILE;
+		counter = 0;
+	}
+	counter++;
+}
+
+/**
+ * Rotate the spaceship to show direction of impulse
+ *
+ */
+void rotoscaleSpaceship(double angle, int size)
+{
+	// rotate the Spaceship image
 
     REG_BG2PA_SUB = cos(angle)*256;
     REG_BG2PC_SUB = sin(angle)*256;
     REG_BG2PB_SUB = (-1)*sin(angle)*256;
     REG_BG2PD_SUB = cos(angle)*256;
 
-    irqEnable(IRQ_TIMER0);
+    // Bring the image back to the center of the screen
+    REG_BG2X_SUB = ( (-SIZE_SCREEN_X/2)*(cos(angle)-1) + (SIZE_SCREEN_Y/2)*sin(angle) )*256;
+    REG_BG2Y_SUB = ( (-SIZE_SCREEN_X/2)*sin(angle) - (SIZE_SCREEN_Y/2)*(cos(angle)-1) )*256;
+
+
 }
-
-

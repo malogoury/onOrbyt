@@ -19,8 +19,12 @@
 #include "MAP2.h"
 #include "MAP3.h"
 #include "MAP4.h"
+#include "arrow_space.h"
+#include "arrow_spaceship.h"
+#include "arrow_wireframe.h"
+#include "panel_control.h"
 
 void graphic_gameInit(Planet* Planet);
 void graphic_gameUpdate(Coordonnee* location, Coordonnee dir);
-void graphic_gameUpdateSub(Coordonnee p0, Coordonnee p1);
+void graphic_gameUpdateSub(Coordonnee p0, Coordonnee p1, Coordonnee speed);
 void graphic_menuInit();
